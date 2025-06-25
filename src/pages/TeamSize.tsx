@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { SidebarDemo } from "@/components/SidebarDemo";
+import SidebarDemo from "@/components/SidebarDemo";
 
 const TeamSize = () => {
   const [selectedEmployees, setSelectedEmployees] = useState("");
