@@ -21,7 +21,7 @@ const items = [
   },
   {
     title: "Studies",
-    url: "/studies",
+    url: "/studies", 
     icon: "📋",
   },
   {
@@ -32,7 +32,7 @@ const items = [
   {
     title: "Data Hub",
     url: "/data-hub",
-    icon: "📊",
+    icon: "💾",
   },
   {
     title: "Connect",
@@ -59,13 +59,13 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <Link 
                       to={item.url}
-                      className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors w-full ${
                         location.pathname === item.url 
                           ? "bg-gray-100 text-gray-900" 
                           : "text-gray-600 hover:bg-gray-50"
                       }`}
                     >
-                      <span className="text-base">{item.icon}</span>
+                      <span className="text-lg w-5 h-5 flex items-center justify-center">{item.icon}</span>
                       <span className="text-sm font-medium">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -90,24 +90,24 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/upgrade" className="flex items-center gap-3 p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                    <span className="text-base">⬆️</span>
+                  <Link to="/upgrade" className="flex items-center gap-3 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                    <span className="text-lg w-5 h-5 flex items-center justify-center">⬆️</span>
                     <span className="text-sm font-medium">Upgrade</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/getting-started" className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                    <span className="text-base">🚀</span>
+                  <Link to="/getting-started" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+                    <span className="text-lg w-5 h-5 flex items-center justify-center">🚀</span>
                     <span className="text-sm font-medium">Getting Started</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/settings" className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                    <span className="text-base">⚙️</span>
+                  <Link to="/settings" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+                    <span className="text-lg w-5 h-5 flex items-center justify-center">⚙️</span>
                     <span className="text-sm font-medium">Settings</span>
                   </Link>
                 </SidebarMenuButton>

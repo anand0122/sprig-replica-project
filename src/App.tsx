@@ -14,6 +14,9 @@ import Studies from "./pages/Studies";
 import NewStudy from "./pages/NewStudy";
 import People from "./pages/People";
 import Dashboards from "./pages/Dashboards";
+import DataHub from "./pages/DataHub";
+import Connect from "./pages/Connect";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +38,9 @@ const App = () => (
           <Route path="/new-study" element={<NewStudy />} />
           <Route path="/people" element={<People />} />
           <Route path="/dashboards" element={<Dashboards />} />
+          <Route path="/data-hub" element={<DataHub />} />
+          <Route path="/connect" element={<Connect />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
