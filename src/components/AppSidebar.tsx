@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, BarChart3, FileText, Users, Database, Link as LinkIcon, ArrowUp, Rocket, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,27 +17,27 @@ const items = [
   {
     title: "Dashboards",
     url: "/dashboards",
-    icon: "📊",
+    icon: BarChart3,
   },
   {
     title: "Studies",
     url: "/studies", 
-    icon: "📋",
+    icon: FileText,
   },
   {
     title: "People",
     url: "/people",
-    icon: "👥",
+    icon: Users,
   },
   {
     title: "Data Hub",
     url: "/data-hub",
-    icon: "💾",
+    icon: Database,
   },
   {
     title: "Connect",
     url: "/connect",
-    icon: "🔗",
+    icon: LinkIcon,
   },
 ];
 
@@ -65,7 +65,7 @@ export function AppSidebar() {
                           : "text-gray-600 hover:bg-gray-50"
                       }`}
                     >
-                      <span className="text-lg w-5 h-5 flex items-center justify-center">{item.icon}</span>
+                      <item.icon className="w-5 h-5" />
                       <span className="text-sm font-medium">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -91,7 +91,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/upgrade" className="flex items-center gap-3 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                    <span className="text-lg w-5 h-5 flex items-center justify-center">⬆️</span>
+                    <ArrowUp className="w-5 h-5" />
                     <span className="text-sm font-medium">Upgrade</span>
                   </Link>
                 </SidebarMenuButton>
@@ -99,7 +99,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/getting-started" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                    <span className="text-lg w-5 h-5 flex items-center justify-center">🚀</span>
+                    <Rocket className="w-5 h-5" />
                     <span className="text-sm font-medium">Getting Started</span>
                   </Link>
                 </SidebarMenuButton>
@@ -107,7 +107,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/settings" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                    <span className="text-lg w-5 h-5 flex items-center justify-center">⚙️</span>
+                    <Settings className="w-5 h-5" />
                     <span className="text-sm font-medium">Settings</span>
                   </Link>
                 </SidebarMenuButton>
