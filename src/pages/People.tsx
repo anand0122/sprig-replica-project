@@ -2,6 +2,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { MessageSquare, Users, User } from "lucide-react";
 
 const People = () => {
   return (
@@ -24,7 +25,8 @@ const People = () => {
               </p>
               
               <Button className="bg-gray-900 text-white px-6 py-3 mb-12">
-                💬 Talk to a Sprig Specialist
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Talk to a Sprig Specialist
               </Button>
 
               <div className="bg-white border rounded-lg p-6">
@@ -33,8 +35,14 @@ const People = () => {
                     <div className="mb-4">
                       <div className="text-sm font-medium text-gray-700 mb-2">People</div>
                       <div className="flex gap-4 text-xs text-gray-500 mb-4">
-                        <span>👥 All People</span>
-                        <span>👥 Groups</span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          All People
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          Groups
+                        </span>
                       </div>
                     </div>
                     
@@ -46,16 +54,28 @@ const People = () => {
                         <span>Created by</span>
                       </div>
                       <div className="flex justify-between items-center py-1">
-                        <span>👥 NPS Detractors</span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          NPS Detractors
+                        </span>
                         <span>~840</span>
                         <span>5 min ago</span>
-                        <span>🟢 John Doe</span>
+                        <span className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          John Doe
+                        </span>
                       </div>
                       <div className="flex justify-between items-center py-1">
-                        <span>👥 Research Panel 1</span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          Research Panel 1
+                        </span>
                         <span>122</span>
                         <span>5 min ago</span>
-                        <span>🟢 Jenny Smith</span>
+                        <span className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          Jenny Smith
+                        </span>
                       </div>
                     </div>
                   </div>

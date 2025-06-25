@@ -1,5 +1,5 @@
 
-import { Plus } from "lucide-react";
+import { Plus, BarChart3, FileText, Users, Database, Link2, HelpCircle, Settings } from "lucide-react";
 
 const SidebarDemo = () => {
   return (
@@ -12,23 +12,23 @@ const SidebarDemo = () => {
       {/* Navigation */}
       <div className="p-4 space-y-2">
         <div className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
+          <BarChart3 className="w-4 h-4" />
           <span className="text-sm">Dashboards</span>
         </div>
         <div className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
+          <FileText className="w-4 h-4" />
           <span className="text-sm">Studies</span>
         </div>
         <div className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
+          <Users className="w-4 h-4" />
           <span className="text-sm">People</span>
         </div>
         <div className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
+          <Database className="w-4 h-4" />
           <span className="text-sm">Events</span>
         </div>
         <div className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
+          <Link2 className="w-4 h-4" />
           <span className="text-sm">Connect</span>
         </div>
       </div>
@@ -44,11 +44,11 @@ const SidebarDemo = () => {
       {/* Bottom section */}
       <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
         <div className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
+          <HelpCircle className="w-4 h-4" />
           <span className="text-sm">Help & Getting Started</span>
         </div>
         <div className="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded">
-          <div className="w-4 h-4 bg-gray-300 rounded"></div>
+          <Settings className="w-4 h-4" />
           <span className="text-sm">Settings</span>
         </div>
         

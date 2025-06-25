@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link2, FileSpreadsheet, Code, Smartphone, Globe } from "lucide-react";
 
 const Connect = () => {
   const integrationTags = [
@@ -20,42 +21,42 @@ const Connect = () => {
   const integrations = [
     {
       name: "JavaScript",
-      icon: "JS",
+      icon: Code,
       description: "Add the Sprig Javascript snippet into your product to automatically track behavior and send in-product studies.",
       tags: ["Code", "Source", "SDK", "Web"],
       action: "Upgrade & Get Access"
     },
     {
       name: "Google Tag Manager",
-      icon: "◆",
+      icon: Globe,
       description: "Start studies users through your product and collecting user and event data by leveraging our native integration.",
       tags: ["No Code", "Source", "Web"],
       action: "Upgrade & Get Access"
     },
     {
       name: "iOS",
-      icon: "iOS",
+      icon: Smartphone,
       description: "Add the Sprig iOS SDK to your app to automatically track behavior and send in-product mobile studies.",
       tags: ["Code", "Source", "SDK", "Mobile"],
       action: "Upgrade & Get Access • Read Docs"
     },
     {
       name: "Android",
-      icon: "🤖",
+      icon: Smartphone,
       description: "Add the Sprig Android SDK to your app to automatically track behavior and send in-product mobile studies.",
       tags: ["Code", "Source", "SDK", "Mobile"],
       action: "Upgrade & Get Access • Read Docs"
     },
     {
       name: "Public API",
-      icon: "💻",
+      icon: Code,
       description: "Send user information via Sprig's public REST API to send email studies or back-fill customer data.",
       tags: ["Code", "Source", "Bulk Ingest"],
       action: "Upgrade & Get Access • Read Docs"
     },
     {
       name: "Upload a Spreadsheet",
-      icon: "📊",
+      icon: FileSpreadsheet,
       description: "Upload user information to send email studies or back-fill customer data.",
       tags: ["No Code", "Source", "Bulk Ingest"],
       action: "Upload File • Read Docs"
@@ -104,8 +105,8 @@ const Connect = () => {
               {integrations.map((integration) => (
                 <div key={integration.name} className="bg-white border rounded-lg p-6">
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-lg font-bold">
-                      {integration.icon}
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <integration.icon className="w-8 h-8 text-gray-600" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-2">{integration.name}</h3>
@@ -127,8 +128,9 @@ const Connect = () => {
                         ))}
                       </div>
                       <p className="text-sm text-gray-600 mb-4">{integration.description}</p>
-                      <button className="text-purple-600 text-sm">
-                        🔗 {integration.action}
+                      <button className="text-purple-600 text-sm flex items-center gap-1">
+                        <Link2 className="w-4 h-4" />
+                        {integration.action}
                       </button>
                     </div>
                   </div>

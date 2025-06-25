@@ -2,6 +2,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { MessageSquare, BarChart3, FileText, Eye, TrendingUp } from "lucide-react";
 
 const DataHub = () => {
   return (
@@ -24,15 +25,22 @@ const DataHub = () => {
               </p>
               
               <Button className="bg-gray-900 text-white px-6 py-3 mb-12">
-                🗣️ Talk to a Sprig Specialist
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Talk to a Sprig Specialist
               </Button>
 
               <div className="bg-white border rounded-lg p-6 max-w-lg mx-auto">
                 <div className="bg-gray-100 rounded-lg p-4 mb-4">
                   <div className="text-sm font-medium mb-2">Data Hub</div>
                   <div className="flex gap-4 text-xs text-gray-600 mb-3">
-                    <span className="border-b-2 border-gray-900 pb-1">📊 Events</span>
-                    <span>📋 Attributes</span>
+                    <span className="border-b-2 border-gray-900 pb-1 flex items-center gap-1">
+                      <BarChart3 className="w-3 h-3" />
+                      Events
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FileText className="w-3 h-3" />
+                      Attributes
+                    </span>
                   </div>
                   
                   <div className="space-y-2 text-xs">
@@ -43,14 +51,26 @@ const DataHub = () => {
                       <span>Created</span>
                     </div>
                     <div className="flex justify-between items-center bg-white p-2 rounded">
-                      <span>📋 Clicked "Create New"</span>
-                      <span>👁️ 76</span>
+                      <span className="flex items-center gap-1">
+                        <FileText className="w-3 h-3" />
+                        Clicked "Create New"
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        76
+                      </span>
                       <span>1</span>
                       <span>6/29/2022</span>
                     </div>
                     <div className="flex justify-between items-center bg-white p-2 rounded">
-                      <span>🔗 Viewed Templates</span>
-                      <span>📈 12</span>
+                      <span className="flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3" />
+                        Viewed Templates
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <BarChart3 className="w-3 h-3" />
+                        12
+                      </span>
                       <span>0</span>
                       <span>6/29/2022</span>
                     </div>
