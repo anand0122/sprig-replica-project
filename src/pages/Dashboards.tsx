@@ -1,6 +1,7 @@
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { Circle, Star, MoreHorizontal, Copy, Play } from "lucide-react";
 
 const Dashboards = () => {
   return (
@@ -25,10 +26,14 @@ const Dashboards = () => {
                   <div className="text-center">
                     <div className="mb-4">
                       <div className="flex items-center gap-2 justify-center mb-2">
-                        <span className="text-blue-600">🔵</span>
+                        <Circle className="w-4 h-4 text-blue-600 fill-blue-600" />
                         <span className="text-sm font-medium">Product Overview</span>
-                        <span className="text-gray-400">⭐ ...</span>
-                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">📋 Copy Link</span>
+                        <Star className="w-4 h-4 text-gray-400" />
+                        <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                        <span className="text-xs bg-gray-100 px-2 py-1 rounded flex items-center gap-1">
+                          <Copy className="w-3 h-3" />
+                          Copy Link
+                        </span>
                       </div>
                     </div>
                     
@@ -72,7 +77,8 @@ const Dashboards = () => {
                 <div className="text-left">
                   <h3 className="font-semibold text-gray-900 mb-2">Learn about Dashboards</h3>
                   <button className="text-blue-600 text-sm flex items-center gap-1">
-                    ▶ Watch Video (1 min)
+                    <Play className="w-4 h-4" />
+                    Watch Video (1 min)
                   </button>
                 </div>
               </div>

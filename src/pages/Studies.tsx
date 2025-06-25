@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Smartphone, Image, ClipboardList, Play } from "lucide-react";
 
 const Studies = () => {
   return (
@@ -34,9 +35,18 @@ const Studies = () => {
                     <div className="text-xs font-medium">New Concept Test</div>
                     <div className="text-xs text-gray-500">Questions • Audience</div>
                     <div className="space-y-1">
-                      <div className="text-xs">📱 Next, we'll show you a prototype of our new feature...</div>
-                      <div className="text-xs">🖼️ Preview of rating scale headline</div>
-                      <div className="text-xs">📋 Preview of Open Text headline</div>
+                      <div className="text-xs flex items-center gap-1">
+                        <Smartphone className="w-3 h-3" />
+                        Next, we'll show you a prototype of our new feature...
+                      </div>
+                      <div className="text-xs flex items-center gap-1">
+                        <Image className="w-3 h-3" />
+                        Preview of rating scale headline
+                      </div>
+                      <div className="text-xs flex items-center gap-1">
+                        <ClipboardList className="w-3 h-3" />
+                        Preview of Open Text headline
+                      </div>
                     </div>
                     <div className="absolute top-2 right-2 bg-white p-1 rounded shadow text-xs">
                       Next, we'll show you a prototype of our new feature and ask for your thoughts.
@@ -47,7 +57,8 @@ const Studies = () => {
                 <div className="text-left">
                   <h3 className="font-semibold text-gray-900 mb-2">Learn about Study Creation</h3>
                   <button className="text-blue-600 text-sm flex items-center gap-1">
-                    ▶ Watch Video (2 min)
+                    <Play className="w-4 h-4" />
+                    Watch Video (2 min)
                   </button>
                 </div>
               </div>
