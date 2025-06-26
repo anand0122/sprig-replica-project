@@ -3,10 +3,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // If user is already logged in, redirect to dashboard
+  if (user) {
+    navigate("/dashboard");
+    return null;
+  }
 
   const handleEmailSubmit = () => {
     if (email) {
@@ -79,7 +87,10 @@ const Index = () => {
               </Button>
 
               <div className="text-center">
-                <button className="text-blue-600 hover:text-blue-800 text-sm">
+                <button 
+                  onClick={() => navigate("/login")}
+                  className="text-blue-600 hover:text-blue-800 text-sm"
+                >
                   Log in to an existing account
                 </button>
               </div>
