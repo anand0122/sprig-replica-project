@@ -1,18 +1,19 @@
-
-import { useAuth } from '@/contexts/AuthContext';
+import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { AppSidebar } from '@/components/AppSidebar';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -21,5 +22,14 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
-};
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <AppSidebar />
+      <div className="flex-1 overflow-auto">
+        <div className="p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}

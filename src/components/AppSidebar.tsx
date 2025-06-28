@@ -1,133 +1,104 @@
-
-import { Link, useLocation } from "react-router-dom";
-import { Plus, BarChart3, FileText, Users, Database, Link as LinkIcon, ArrowUp, Rocket, Settings } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-
-const items = [
-  {
-    title: "Dashboards",
-    url: "/dashboards",
-    icon: BarChart3,
-  },
-  {
-    title: "Studies",
-    url: "/studies", 
-    icon: FileText,
-  },
-  {
-    title: "People",
-    url: "/people",
-    icon: Users,
-  },
-  {
-    title: "Data Hub",
-    url: "/data-hub",
-    icon: Database,
-  },
-  {
-    title: "Connect",
-    url: "/connect",
-    icon: LinkIcon,
-  },
-];
+import { useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  Home, 
+  FileText, 
+  BarChart3, 
+  MessageSquare, 
+  Settings, 
+  LogOut,
+  Zap,
+  Plus,
+  Users,
+  Workflow
+} from "lucide-react";
 
 export function AppSidebar() {
+  const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const menuItems = [
+    { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: FileText, label: "Forms", path: "/forms" },
+    { icon: BarChart3, label: "Analytics", path: "/analytics" },
+    { icon: MessageSquare, label: "Responses", path: "/responses" },
+    { icon: Workflow, label: "Integrations", path: "/integrations" },
+    { icon: Settings, label: "Settings", path: "/settings" },
+  ];
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="p-4">
-        <h1 className="text-xl font-semibold text-gray-900">Sprig</h1>
-      </SidebarHeader>
-      
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link 
-                      to={item.url}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors w-full ${
-                        location.pathname === item.url 
-                          ? "bg-gray-100 text-gray-900" 
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="text-sm font-medium">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <div className="px-4 py-2">
-          <Link 
-            to="/new-study"
-            className="w-full bg-gray-900 text-white p-3 rounded-lg text-sm flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            New Study
-          </Link>
+    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen">
+      {/* Header */}
+      <div className="p-6 border-b border-gray-200">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          <span className="text-xl font-bold text-gray-900">FormPulse</span>
         </div>
+        
+        <Button 
+          onClick={() => navigate('/create')}
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Create New
+        </Button>
+      </div>
 
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/upgrade" className="flex items-center gap-3 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                    <ArrowUp className="w-5 h-5" />
-                    <span className="text-sm font-medium">Upgrade</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/getting-started" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                    <Rocket className="w-5 h-5" />
-                    <span className="text-sm font-medium">Getting Started</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/settings" className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                    <Settings className="w-5 h-5" />
-                    <span className="text-sm font-medium">Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-2">
+        {menuItems.map((item) => (
+          <button
+            key={item.path}
+            onClick={() => navigate(item.path)}
+            className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              isActive(item.path)
+                ? "bg-blue-50 text-blue-700 border border-blue-200"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+            }`}
+          >
+            <item.icon className="w-5 h-5" />
+            {item.label}
+          </button>
+        ))}
+      </nav>
 
-      <SidebarFooter className="p-4 border-t">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-semibold">S</span>
+      {/* User Profile */}
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <Users className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900 truncate">Design Agency</div>
-            <div className="text-xs text-gray-500">Production</div>
+            <div className="text-sm font-medium text-gray-900 truncate">
+              {user?.name || "User"}
+            </div>
+            <div className="text-xs text-gray-500 truncate">
+              {user?.email}
+            </div>
           </div>
         </div>
-      </SidebarFooter>
-    </Sidebar>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleLogout}
+          className="w-full"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
+      </div>
+    </div>
   );
 }

@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Roboto Mono', 'monospace'],
+				mono: ['Roboto Mono', 'monospace'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -92,5 +96,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [require("tailwindcss-animate"), require("@tailwindcss/line-clamp")],
 } satisfies Config;

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormPulse Embed Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        .demo-section {
+            background: white;
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .demo-section h2 {
+            color: #1a202c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        .embed-container {
+            margin: 20px 0;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f7fafc;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .feature-card h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4299e1;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background: #3182ce;
+        }
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .status.loading {
+            background: #fed7c3;
+            color: #c05621;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 FormPulse Embed Demo</h1>
+            <p>Explore different ways to embed FormPulse forms on your website</p>
+            <div>
+                <a href="#iframe" class="btn">IFrame Method</a>
+                <a href="#javascript" class="btn">JavaScript SDK</a>
+                <a href="#data-attributes" class="btn">Data Attributes</a>
+                <a href="#react" class="btn">React Component</a>
+            </div>
+        </div>
+
+        <!-- Method 1: IFrame Embed -->
+        <div class="demo-section" id="iframe">
+            <h2>📋 Method 1: IFrame Embed</h2>
+            <p>The simplest way to embed a form. Just copy and paste the iframe code:</p>
+            
+            <div class="code-block">
+&lt;iframe 
+  src="http://localhost:5173/embed/demo-1?theme=light&amp;showTitle=true&amp;showDescription=true&amp;primaryColor=3b82f6&amp;backgroundColor=ffffff" 
+  width="100%" 
+  height="600px" 
+  frameborder="0" 
+  style="border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"&gt;
+&lt;/iframe&gt;
+            </div>
+
+            <div class="embed-container">
+                <h3>Live Demo:</h3>
+                <iframe 
+                    src="http://localhost:5173/embed/demo-1?theme=light&showTitle=true&showDescription=true&primaryColor=3b82f6&backgroundColor=ffffff&embed=true" 
+                    width="100%" 
+                    height="600px" 
+                    frameborder="0" 
+                    style="border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- Method 2: JavaScript SDK -->
+        <div class="demo-section" id="javascript">
+            <h2>⚡ Method 2: JavaScript SDK</h2>
+            <p>Use our JavaScript SDK for more control and customization:</p>
+            
+            <div class="code-block">
+&lt;script src="http://localhost:5173/embed-script.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  FormPulseEmbed.init({
+    formId: "demo-1",
+    container: "#form-container",
+    theme: "light",
+    showTitle: true,
+    showDescription: true,
+    primaryColor: "#4299e1",
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    onSubmit: function(data) {
+      console.log('Form submitted:', data);
+      alert('Form submitted successfully!');
+    },
+    onLoad: function() {
+      console.log('Form loaded successfully');
+    },
+    onError: function(error) {
+      console.error('Form error:', error);
+    }
+  });
+&lt;/script&gt;
+
+&lt;div id="form-container"&gt;&lt;/div&gt;
+            </div>
+
+            <div class="embed-container">
+                <h3>Live Demo:</h3>
+                <div id="js-form-container"></div>
+                <div style="margin-top: 10px;">
+                    <span class="status loading" id="js-status">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Method 3: Data Attributes -->
+        <div class="demo-section" id="data-attributes">
+            <h2>🏷️ Method 3: Data Attributes (Auto-Initialize)</h2>
+            <p>The easiest way - just add data attributes to any element:</p>
+            
+            <div class="code-block">
+&lt;script src="http://localhost:5173/embed-script.js"&gt;&lt;/script&gt;
+
+&lt;div 
+  data-formpulse-form="demo-1"
+  data-theme="light"
+  data-primary-color="#10b981"
+  data-background-color="#ffffff"
+  data-border-radius="16px"
+  data-width="100%"
+  data-height="500px"&gt;
+&lt;/div&gt;
+            </div>
+
+            <div class="embed-container">
+                <h3>Live Demo:</h3>
+                <div 
+                    data-formpulse-form="demo-1"
+                    data-theme="light"
+                    data-primary-color="#10b981"
+                    data-background-color="#ffffff"
+                    data-border-radius="16px"
+                    data-width="100%"
+                    data-height="500px">
+                </div>
+                <div style="margin-top: 10px;">
+                    <span class="status loading" id="data-status">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Method 4: React Component -->
+        <div class="demo-section" id="react">
+            <h2>⚛️ Method 4: React Component</h2>
+            <p>For React applications, use this component approach:</p>
+            
+            <div class="code-block">
+import React, { useEffect } from 'react';
+
+const FormPulseEmbed = ({ 
+  formId, 
+  theme = 'light', 
+  primaryColor = '#3b82f6',
+  onSubmit,
+  onLoad,
+  onError 
+}) => {
+  useEffect(() => {
+    // Load the embed script
+    const script = document.createElement('script');
+    script.src = 'http://localhost:5173/embed-script.js';
+    script.onload = () => {
+      window.FormPulseEmbed.init({
+        formId,
+        container: `#formpulse-${formId}`,
+        theme,
+        primaryColor,
+        onSubmit,
+        onLoad,
+        onError
+      });
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, [formId, theme, primaryColor]);
+
+  return &lt;div id={`formpulse-${formId}`} /&gt;;
+};
+
+// Usage
+&lt;FormPulseEmbed 
+  formId="demo-1"
+  theme="light"
+  primaryColor="#8b5cf6"
+  onSubmit={(data) => console.log('Submitted:', data)}
+  onLoad={() => console.log('Form loaded')}
+  onError={(error) => console.error('Error:', error)}
+/&gt;
+            </div>
+
+            <div class="embed-container">
+                <h3>Live Demo:</h3>
+                <div id="react-form-container"></div>
+                <div style="margin-top: 10px;">
+                    <span class="status loading" id="react-status">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Overview -->
+        <div class="demo-section">
+            <h2>✨ Features & Customization</h2>
+            <div class="grid">
+                <div class="feature-card">
+                    <h3>🎨 Theming</h3>
+                    <p>Customize colors, fonts, and styling to match your brand</p>
+                    <ul>
+                        <li>Primary color customization</li>
+                        <li>Background color control</li>
+                        <li>Border radius adjustment</li>
+                        <li>Light/dark theme support</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>📱 Responsive</h3>
+                    <p>Forms automatically adapt to any screen size</p>
+                    <ul>
+                        <li>Mobile-first design</li>
+                        <li>Touch-friendly controls</li>
+                        <li>Flexible width/height</li>
+                        <li>Auto-resize capability</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>🔧 JavaScript API</h3>
+                    <p>Full programmatic control over form behavior</p>
+                    <ul>
+                        <li>Form submission callbacks</li>
+                        <li>Load/error event handling</li>
+                        <li>Dynamic configuration</li>
+                        <li>Multiple form support</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>🚀 Performance</h3>
+                    <p>Optimized for fast loading and smooth interactions</p>
+                    <ul>
+                        <li>Lightweight embed script</li>
+                        <li>Lazy loading support</li>
+                        <li>CDN-ready assets</li>
+                        <li>Minimal dependencies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Handling Demo -->
+        <div class="demo-section">
+            <h2>🎯 Event Handling</h2>
+            <p>Monitor form events in real-time:</p>
+            <div id="event-log" style="background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 8px; font-family: monospace; height: 200px; overflow-y: auto;">
+                <div>📝 Event log (events will appear here):</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load FormPulse Embed Script -->
+    <script src="http://localhost:5173/embed-script.js"></script>
+    
+    <script>
+        // Event logging
+        function logEvent(message) {
+            const log = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `\n[${timestamp}] ${message}`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Method 2: JavaScript SDK Demo
+        FormPulseEmbed.init({
+            formId: "demo-1",
+            container: "#js-form-container",
+            theme: "light",
+            primaryColor: "#4299e1",
+            backgroundColor: "#ffffff",
+            borderRadius: "12px",
+            onSubmit: function(data) {
+                logEvent('📤 Form submitted via JavaScript SDK');
+                document.getElementById('js-status').textContent = 'Form Submitted!';
+                document.getElementById('js-status').className = 'status success';
+            },
+            onLoad: function() {
+                logEvent('✅ JavaScript SDK form loaded successfully');
+                document.getElementById('js-status').textContent = 'Form Loaded';
+                document.getElementById('js-status').className = 'status success';
+            },
+            onError: function(error) {
+                logEvent('❌ JavaScript SDK error: ' + error);
+                document.getElementById('js-status').textContent = 'Error Loading Form';
+                document.getElementById('js-status').className = 'status error';
+            }
+        });
+
+        // Method 4: React-style Demo
+        FormPulseEmbed.init({
+            formId: "demo-1",
+            container: "#react-form-container",
+            theme: "light",
+            primaryColor: "#8b5cf6",
+            backgroundColor: "#ffffff",
+            borderRadius: "8px",
+            onSubmit: function(data) {
+                logEvent('📤 Form submitted via React-style embed');
+                document.getElementById('react-status').textContent = 'Form Submitted!';
+                document.getElementById('react-status').className = 'status success';
+            },
+            onLoad: function() {
+                logEvent('✅ React-style form loaded successfully');
+                document.getElementById('react-status').textContent = 'Form Loaded';
+                document.getElementById('react-status').className = 'status success';
+            },
+            onError: function(error) {
+                logEvent('❌ React-style error: ' + error);
+                document.getElementById('react-status').textContent = 'Error Loading Form';
+                document.getElementById('react-status').className = 'status error';
+            }
+        });
+
+        // Listen for data-attribute forms
+        document.addEventListener('formpulseSubmit', function(event) {
+            logEvent('📤 Form submitted via data attributes: ' + event.detail.formId);
+            document.getElementById('data-status').textContent = 'Form Submitted!';
+            document.getElementById('data-status').className = 'status success';
+        });
+
+        // Update data-attribute status when loaded
+        setTimeout(() => {
+            const dataElements = document.querySelectorAll('[data-formpulse-form]');
+            if (dataElements.length > 0) {
+                logEvent('✅ Data-attribute forms initialized');
+                document.getElementById('data-status').textContent = 'Form Loaded';
+                document.getElementById('data-status').className = 'status success';
+            }
+        }, 2000);
+
+        // Initial log message
+        logEvent('🚀 FormPulse Embed Demo initialized');
+    </script>
+</body>
+</html> 

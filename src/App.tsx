@@ -1,99 +1,163 @@
+import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { Toaster } from './components/ui/toaster';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import EmailDetection from "./pages/EmailDetection";
-import RoleSelection from "./pages/RoleSelection";
-import TeamCreation from "./pages/TeamCreation";
-import TeamSize from "./pages/TeamSize";
-import Dashboard from "./pages/Dashboard";
-import Studies from "./pages/Studies";
-import NewStudy from "./pages/NewStudy";
-import Analytics from "./pages/Analytics";
-import StudyPreview from "./pages/StudyPreview";
-import People from "./pages/People";
-import Dashboards from "./pages/Dashboards";
-import DataHub from "./pages/DataHub";
-import Connect from "./pages/Connect";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
+// Pages
+import Index from './pages/Index';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Dashboard from './pages/Dashboard';
+import FormBuilder from './pages/FormBuilder';
+import EnhancedFormBuilder from './pages/EnhancedFormBuilder';
+import Forms from './pages/Forms';
+import PublicForm from './pages/PublicForm';
+import QuizBuilder from './pages/QuizBuilder';
+import QuizTaker from './pages/QuizTaker';
+import Analytics from './pages/Analytics';
+import FormAnalytics from './pages/FormAnalytics';
+import QuizAnalytics from './pages/QuizAnalytics';
+import Responses from './pages/Responses';
+import Settings from './pages/Settings';
+import CreateForm from './pages/CreateForm';
+import FormEmbed from './pages/FormEmbed';
+import EmbeddedForm from './pages/EmbeddedForm';
+import LandingPage from './pages/LandingPage';
+import Pricing from './pages/Pricing';
+import Integrations from './pages/Integrations';
+import Blog from './pages/Blog';
+import NotFound from './pages/NotFound';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
+function App() {
+  return (
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-50">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Index />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          
+          {/* Public Form Routes */}
+          <Route path="/form/:id" element={<PublicForm />} />
+          <Route path="/quiz/:id" element={<QuizTaker />} />
+          <Route path="/embed/:id" element={<EmbeddedForm />} />
+          
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          
+          {/* Form Management */}
+          <Route path="/forms" element={
+            <ProtectedRoute>
+              <Forms />
+            </ProtectedRoute>
+          } />
+          <Route path="/create" element={
+            <ProtectedRoute>
+              <CreateForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/new" element={
+            <ProtectedRoute>
+              <CreateForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/new/edit" element={
+            <ProtectedRoute>
+              <FormBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/:id/edit" element={
+            <ProtectedRoute>
+              <FormBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/:id/enhanced" element={
+            <ProtectedRoute>
+              <EnhancedFormBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/:id/analytics" element={
+            <ProtectedRoute>
+              <FormAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/:id/responses" element={
+            <ProtectedRoute>
+              <Responses />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/:id/embed" element={
+            <ProtectedRoute>
+              <FormEmbed />
+            </ProtectedRoute>
+          } />
+          
+          {/* Quiz Management */}
+          <Route path="/quiz/new" element={
+            <ProtectedRoute>
+              <QuizBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/quiz/:id/edit" element={
+            <ProtectedRoute>
+              <QuizBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/quiz/:id/analytics" element={
+            <ProtectedRoute>
+              <QuizAnalytics />
+            </ProtectedRoute>
+          } />
+          
+          {/* Analytics & Reports */}
+          <Route path="/analytics" element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/responses" element={
+            <ProtectedRoute>
+              <Responses />
+            </ProtectedRoute>
+          } />
+          
+          {/* Settings */}
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          
+          {/* Integrations */}
+          <Route path="/integrations" element={
+            <ProtectedRoute>
+              <Integrations />
+            </ProtectedRoute>
+          } />
+          
+          {/* Blog */}
+          <Route path="/blog" element={
+            <ProtectedRoute>
+              <Blog />
+            </ProtectedRoute>
+          } />
+          
+          {/* Catch all route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        
         <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/email-detection" element={<EmailDetection />} />
-            <Route path="/role-selection" element={<RoleSelection />} />
-            <Route path="/team-creation" element={<TeamCreation />} />
-            <Route path="/team-size" element={<TeamSize />} />
-            <Route path="/study/:studyId/preview" element={<StudyPreview />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/studies" element={
-              <ProtectedRoute>
-                <Studies />
-              </ProtectedRoute>
-            } />
-            <Route path="/new-study" element={
-              <ProtectedRoute>
-                <NewStudy />
-              </ProtectedRoute>
-            } />
-            <Route path="/analytics/:studyId" element={
-              <ProtectedRoute>
-                <Analytics />
-              </ProtectedRoute>
-            } />
-            <Route path="/people" element={
-              <ProtectedRoute>
-                <People />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboards" element={
-              <ProtectedRoute>
-                <Dashboards />
-              </ProtectedRoute>
-            } />
-            <Route path="/data-hub" element={
-              <ProtectedRoute>
-                <DataHub />
-              </ProtectedRoute>
-            } />
-            <Route path="/connect" element={
-              <ProtectedRoute>
-                <Connect />
-              </ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </div>
+    </AuthProvider>
+  );
+}
 
 export default App;

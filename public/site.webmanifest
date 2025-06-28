@@ -1,0 +1,29 @@
+{
+  "name": "FormPulse - AI-Powered Form Builder",
+  "short_name": "FormPulse",
+  "description": "Build beautiful, high-converting forms and surveys with AI in seconds. Advanced analytics, 40+ integrations, GDPR compliant.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+} 

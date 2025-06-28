@@ -1,0 +1,415 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  password          String
+  firstName         String?
+  lastName          String?
+  avatar            String?
+  emailVerified     Boolean  @default(false)
+  emailVerificationToken String?
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  
+  // Subscription & billing
+  subscriptionId    String?
+  subscriptionTier  SubscriptionTier @default(FREE)
+  subscriptionStatus SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId  String?
+  billingAddress    Json?
+  
+  // Usage tracking
+  formsCreated      Int      @default(0)
+  responsesReceived Int      @default(0)
+  storageUsed       BigInt   @default(0)
+  
+  // Settings
+  timezone          String   @default("UTC")
+  language          String   @default("en")
+  notifications     Json     @default("{}")
+  preferences       Json     @default("{}")
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Relations
+  forms             Form[]
+  responses         Response[]
+  analytics         Analytics[]
+  integrations      Integration[]
+  apiKeys           ApiKey[]
+  webhooks          Webhook[]
+  teams             TeamMember[]
+  
+  @@map("users")
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  avatar      String?
+  
+  // Settings
+  settings    Json     @default("{}")
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  members     TeamMember[]
+  forms       Form[]
+  
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  userId   String
+  teamId   String
+  role     TeamRole @default(MEMBER)
+  
+  // Timestamps
+  joinedAt DateTime @default(now())
+  
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model Form {
+  id              String     @id @default(cuid())
+  title           String
+  description     String?
+  slug            String     @unique
+  
+  // Form configuration
+  fields          Json       @default("[]")
+  settings        Json       @default("{}")
+  design          Json       @default("{}")
+  logic           Json       @default("{}")
+  
+  // Status and visibility
+  status          FormStatus @default(DRAFT)
+  isPublic        Boolean    @default(false)
+  requiresAuth    Boolean    @default(false)
+  
+  // SEO and metadata
+  metaTitle       String?
+  metaDescription String?
+  customCss       String?
+  customJs        String?
+  
+  // Analytics
+  views           Int        @default(0)
+  submissions     Int        @default(0)
+  conversionRate  Float      @default(0)
+  
+  // Timestamps
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  publishedAt     DateTime?
+  
+  // Relations
+  userId          String
+  teamId          String?
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team            Team?      @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  responses       Response[]
+  analytics       Analytics[]
+  webhooks        Webhook[]
+  
+  @@map("forms")
+}
+
+model Response {
+  id              String           @id @default(cuid())
+  formId          String
+  
+  // Response data
+  data            Json
+  metadata        Json             @default("{}")
+  
+  // Submission info
+  submitterEmail  String?
+  submitterName   String?
+  ipAddress       String?
+  userAgent       String?
+  referrer        String?
+  
+  // Status
+  status          ResponseStatus   @default(COMPLETED)
+  score           Float?
+  
+  // Timestamps
+  submittedAt     DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Relations
+  formId_rel      Form             @relation(fields: [formId], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@map("responses")
+}
+
+model Analytics {
+  id              String         @id @default(cuid())
+  formId          String
+  userId          String
+  
+  // Analytics data
+  metric          String
+  value           Float
+  dimensions      Json           @default("{}")
+  
+  // Time period
+  date            DateTime
+  period          AnalyticsPeriod @default(DAILY)
+  
+  // Timestamps
+  createdAt       DateTime       @default(now())
+  
+  // Relations
+  form            Form           @relation(fields: [formId], references: [id], onDelete: Cascade)
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([formId, metric, date, period])
+  @@map("analytics")
+}
+
+model Integration {
+  id              String             @id @default(cuid())
+  userId          String
+  
+  // Integration details
+  provider        IntegrationProvider
+  name            String
+  description     String?
+  
+  // Configuration
+  config          Json
+  credentials     Json
+  
+  // Status
+  status          IntegrationStatus  @default(ACTIVE)
+  lastSyncAt      DateTime?
+  
+  // Timestamps
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  // Relations
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("integrations")
+}
+
+model Webhook {
+  id              String        @id @default(cuid())
+  formId          String
+  
+  // Webhook configuration
+  url             String
+  events          String[]
+  secret          String?
+  
+  // Status
+  status          WebhookStatus @default(ACTIVE)
+  lastTriggeredAt DateTime?
+  failureCount    Int           @default(0)
+  
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  form            Form          @relation(fields: [formId], references: [id], onDelete: Cascade)
+  
+  @@map("webhooks")
+}
+
+model ApiKey {
+  id              String       @id @default(cuid())
+  userId          String
+  
+  // Key details
+  name            String
+  key             String       @unique
+  permissions     String[]
+  
+  // Usage tracking
+  lastUsedAt      DateTime?
+  usageCount      Int          @default(0)
+  
+  // Status
+  status          ApiKeyStatus @default(ACTIVE)
+  expiresAt       DateTime?
+  
+  // Timestamps
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  // Relations
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("api_keys")
+}
+
+model Template {
+  id              String         @id @default(cuid())
+  
+  // Template details
+  name            String
+  description     String
+  category        String
+  tags            String[]
+  
+  // Template data
+  fields          Json
+  design          Json
+  settings        Json
+  
+  // Metadata
+  preview         String?
+  featured        Boolean        @default(false)
+  usageCount      Int            @default(0)
+  
+  // Status
+  status          TemplateStatus @default(ACTIVE)
+  
+  // Timestamps
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("templates")
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  userId            String
+  
+  // Stripe details
+  stripeSubscriptionId String          @unique
+  stripePriceId     String
+  stripeCustomerId  String
+  
+  // Subscription details
+  tier              SubscriptionTier
+  status            SubscriptionStatus
+  
+  // Billing
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean           @default(false)
+  canceledAt         DateTime?
+  
+  // Usage limits
+  formsLimit        Int
+  responsesLimit    Int
+  storageLimit      BigInt
+  
+  // Timestamps
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  @@map("subscriptions")
+}
+
+// Enums
+enum SubscriptionTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  UNPAID
+  INCOMPLETE
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum FormStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  DELETED
+}
+
+enum ResponseStatus {
+  STARTED
+  COMPLETED
+  ABANDONED
+}
+
+enum AnalyticsPeriod {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum IntegrationProvider {
+  GOOGLE_SHEETS
+  MAILCHIMP
+  HUBSPOT
+  SALESFORCE
+  SLACK
+  ZAPIER
+  WEBHOOK
+  EMAIL
+  SMS
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  PENDING
+}
+
+enum WebhookStatus {
+  ACTIVE
+  INACTIVE
+  FAILED
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+enum TemplateStatus {
+  ACTIVE
+  INACTIVE
+  DEPRECATED
+} 
