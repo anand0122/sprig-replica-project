@@ -51,7 +51,6 @@ model User {
   analytics         Analytics[]
   integrations      Integration[]
   apiKeys           ApiKey[]
-  webhooks          Webhook[]
   teams             TeamMember[]
   
   @@map("users")
@@ -379,14 +378,7 @@ enum AnalyticsPeriod {
 
 enum IntegrationProvider {
   GOOGLE_SHEETS
-  MAILCHIMP
-  HUBSPOT
-  SALESFORCE
-  SLACK
-  ZAPIER
-  WEBHOOK
-  EMAIL
-  SMS
+  NOTION
 }
 
 enum IntegrationStatus {

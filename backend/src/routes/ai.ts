@@ -5,6 +5,7 @@ import { requireEmailVerification, requireSubscription } from '../middleware/aut
 import { logger } from '../utils/logger.js';
 import { aiService } from '../services/aiService.js';
 import rateLimit from 'express-rate-limit';
+import { generateFormFromPrompt } from '../services/geminiService.js';
 
 const router = express.Router();
 
@@ -75,13 +76,7 @@ router.post('/generate-form', aiLimiter, requireEmailVerification, validateReque
 
     logger.info(`AI form generation requested by user: ${userId}`, { prompt: prompt.substring(0, 100) });
 
-    const generatedForm = await aiService.generateFormFromPrompt({
-      prompt,
-      formType,
-      language,
-      style,
-      userId
-    });
+    const generatedForm = await generateFormFromPrompt(prompt);
 
     res.json({
       message: 'Form generated successfully',
@@ -410,6 +405,36 @@ router.get('/usage', requireEmailVerification, async (req, res) => {
       error: 'Failed to fetch usage stats',
       message: 'An error occurred while fetching AI usage statistics.'
     });
+  }
+});
+
+/**
+ * @route POST /api/ai/generate-quiz
+ * @desc Generate Bloom's Taxonomy quiz (or similar) via Gemini backend
+ * @access Private
+ */
+router.post('/generate-quiz', aiLimiter, requireEmailVerification, validateRequest(z.object({
+  prompt: z.string().min(5),
+  taxonomyLevel: z.string().default('understand'),
+  difficulty: z.string().default('medium'),
+  questionCount: z.number().min(1).max(20).default(5)
+})), async (req, res) => {
+  try {
+    const { prompt, taxonomyLevel, difficulty, questionCount } = req.body;
+    const userId = req.user!.id;
+
+    const form = await aiService.generateFormFromPrompt({
+      prompt,
+      formType: 'quiz',
+      language: 'en',
+      style: difficulty,
+      userId
+    });
+
+    res.json({ form });
+  } catch (err) {
+    logger.error('AI quiz generation error', err);
+    res.status(500).json({ error: 'Failed to generate quiz' });
   }
 });
 

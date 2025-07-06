@@ -34,6 +34,7 @@ interface MultiStepFormBuilderProps {
   questions: any[];
   pages: FormPage[];
   onPagesChange: (pages: FormPage[]) => void;
+  onQuestionsChange: (questions: any[]) => void;
   currentPage: number;
   onCurrentPageChange: (page: number) => void;
 }
@@ -42,6 +43,7 @@ export const MultiStepFormBuilder: React.FC<MultiStepFormBuilderProps> = ({
   questions,
   pages,
   onPagesChange,
+  onQuestionsChange,
   currentPage,
   onCurrentPageChange
 }) => {
@@ -75,21 +77,39 @@ export const MultiStepFormBuilder: React.FC<MultiStepFormBuilderProps> = ({
     ));
   };
 
-  const moveQuestionToPage = (questionId: string, targetPageId: string) => {
-    // Remove question from all pages first
-    const updatedPages = pages.map(page => ({
+  const moveQuestionToPage = (questionId: string, targetPageId: string | null) => {
+    // Remove the question from every page first
+    let updatedPages = pages.map(page => ({
       ...page,
       questionIds: page.questionIds.filter(id => id !== questionId)
     }));
 
-    // Add question to target page
-    const finalPages = updatedPages.map(page => 
-      page.id === targetPageId 
+    // If dropping to Unassigned (targetPageId === null) just update pages without re-adding
+    if (!targetPageId) {
+      onPagesChange(updatedPages);
+      return;
+    }
+
+    // Add to the target page
+    updatedPages = updatedPages.map(page =>
+      page.id === targetPageId
         ? { ...page, questionIds: [...page.questionIds, questionId] }
         : page
     );
 
-    onPagesChange(finalPages);
+    onPagesChange(updatedPages);
+  };
+
+  const reorderWithinUnassigned = (sourceIdx: number, destIdx: number) => {
+    const unassigned = getUnassignedQuestions();
+    const moved = Array.from(unassigned);
+    const [item] = moved.splice(sourceIdx, 1);
+    moved.splice(destIdx, 0, item);
+
+    // Update overall questions array order to reflect new unassigned order
+    const remainingAssigned = questions.filter(q => !unassigned.some(u => u.id === q.id));
+    const newQuestions = [...remainingAssigned, ...moved];
+    onQuestionsChange(newQuestions);
   };
 
   const getUnassignedQuestions = () => {
@@ -102,9 +122,14 @@ export const MultiStepFormBuilder: React.FC<MultiStepFormBuilderProps> = ({
 
     const { source, destination, draggableId } = result;
     
-    // If moving within the same page
+    // Moving within the same list (page or unassigned)
     if (source.droppableId === destination.droppableId) {
       const pageId = source.droppableId.replace('page-', '');
+      if (source.droppableId === 'unassigned') {
+        reorderWithinUnassigned(source.index, destination.index);
+        return;
+      }
+
       const page = pages.find(p => p.id === pageId);
       if (!page) return;
 
@@ -114,8 +139,10 @@ export const MultiStepFormBuilder: React.FC<MultiStepFormBuilderProps> = ({
 
       updatePage(pageId, { questionIds: newQuestionIds });
     } else {
-      // Moving between pages or from unassigned
-      const targetPageId = destination.droppableId.replace('page-', '');
+      // Moving between lists
+      const targetPageIdRaw = destination.droppableId;
+      const targetPageId =
+        targetPageIdRaw === 'unassigned' ? null : targetPageIdRaw.replace('page-', '');
       moveQuestionToPage(draggableId, targetPageId);
     }
   };

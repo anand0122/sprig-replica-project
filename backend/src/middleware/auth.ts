@@ -28,7 +28,18 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
+    // In development, allow requests without token and inject a mock user for testing
     if (!token) {
+      if (process.env.NODE_ENV !== 'production') {
+        req.user = {
+          id: 'dev-user',
+          email: 'dev@local.test',
+          subscriptionTier: 'FREE',
+          subscriptionStatus: 'ACTIVE',
+          emailVerified: true,
+        } as any;
+        return next();
+      }
       return res.status(401).json({
         error: 'Access token required',
         message: 'Authentication token is required to access this resource.'

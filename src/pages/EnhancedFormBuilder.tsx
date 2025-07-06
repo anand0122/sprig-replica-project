@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -47,6 +47,7 @@ import {
   Languages,
   Shield
 } from 'lucide-react';
+import { FORM_TEMPLATES } from '@/data/formTemplates';
 
 interface FormPage {
   id: string;
@@ -124,6 +125,8 @@ interface FormSettings {
 const EnhancedFormBuilder: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const method = searchParams.get('method');
   const isEditing = Boolean(id && id !== 'new');
   
   const [activeTab, setActiveTab] = useState('builder');
@@ -132,6 +135,7 @@ const EnhancedFormBuilder: React.FC = () => {
   const [pages, setPages] = useState<FormPage[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>([]);
+  const [isFormSaved, setIsFormSaved] = useState(isEditing);
   const [workflow, setWorkflow] = useState<Workflow>({
     id: 'default',
     name: 'Default Workflow',
@@ -200,44 +204,159 @@ const EnhancedFormBuilder: React.FC = () => {
     } else {
       initializeNewForm();
     }
-  }, [id, isEditing]);
+  }, [id, isEditing, method]);
 
   const loadForm = async (formId: string) => {
     try {
-      const formData = await apiService.getForm(formId);
+      const response = await apiService.getForm(formId);
+      if (!response.success || !response.data) return;
+
+      const formData: any = response.data as any;
+
       setForm(formData);
       setQuestions(formData.questions || []);
-      setPages(formData.pages || [{ 
+      setPages((formData.pages as any) || [{ 
         id: 'page1', 
         title: 'Page 1', 
         questionIds: formData.questions?.map((q: any) => q.id) || [],
         settings: { showProgress: true, allowBack: true }
       }]);
-      setConditionalRules(formData.conditionalRules || []);
-      setWorkflow(formData.workflow || workflow);
-      setFormSettings({ ...formSettings, ...formData.settings });
+      setConditionalRules((formData.conditionalRules as any) || []);
+      setWorkflow((formData.workflow as any) || workflow);
+      setFormSettings({ ...formSettings, ...(formData.settings || {}) });
+      setIsFormSaved(true);
     } catch (error) {
       console.error('Error loading form:', error);
     }
   };
 
   const initializeNewForm = () => {
+    // Get template data based on method parameter
+    const templateData = getTemplateData(method);
+    
     const newForm = {
       id: crypto.randomUUID(),
-      title: 'New Form',
-      description: '',
-      questions: [],
+      title: templateData.title,
+      description: templateData.description,
+      questions: templateData.questions,
       created: new Date().toISOString(),
       updated: new Date().toISOString()
     };
     
     setForm(newForm);
+    setQuestions(templateData.questions);
     setPages([{ 
       id: 'page1', 
       title: 'Page 1', 
-      questionIds: [],
+      questionIds: templateData.questions.map(q => q.id),
       settings: { showProgress: true, allowBack: true }
     }]);
+
+    // Apply template settings
+    if (templateData.settings) {
+      setFormSettings(prev => ({
+        ...prev,
+        ...templateData.settings
+      }));
+    }
+    
+    // If it's a template, enable AI mode for easy customization
+    if (method && method !== 'blank') {
+      setIsAIMode(true);
+    }
+  };
+
+  const getTemplateData = (method: string | null) => {
+    if (!method || method === 'blank') {
+      return {
+        title: 'New Enhanced Form',
+        description: 'Create your form with advanced features',
+        questions: [],
+        settings: {
+          theme: 'modern',
+          brandColor: '#3b82f6',
+          submitButtonText: 'Submit',
+          thankYouMessage: 'Thank you for your submission!',
+          collectEmails: false,
+          requireLogin: false,
+          allowAnonymous: true,
+          enableProgress: true,
+          showQuestionNumbers: true,
+          randomizeQuestions: false,
+          allowSaveProgress: false,
+          enablePasswordProtection: false,
+          enableRecaptcha: false,
+          enableAnalytics: true,
+          enableCookieConsent: true,
+          languages: ['en'],
+          defaultLanguage: 'en',
+          enableTranslation: false,
+          accessibilityMode: false,
+          highContrastMode: false,
+          screenReaderOptimized: false
+        }
+      };
+    }
+
+    const template = FORM_TEMPLATES[method as keyof typeof FORM_TEMPLATES];
+    if (template) {
+      return {
+        ...template,
+        questions: template.questions.map(q => ({
+          ...q,
+          id: crypto.randomUUID()
+        })),
+        settings: {
+          ...template.settings,
+          collectEmails: template.settings?.collectEmails ?? false,
+          requireLogin: template.settings?.requireLogin ?? false,
+          allowAnonymous: template.settings?.allowAnonymous ?? true,
+          enableProgress: template.settings?.enableProgress ?? true,
+          showQuestionNumbers: template.settings?.showQuestionNumbers ?? true,
+          randomizeQuestions: template.settings?.randomizeQuestions ?? false,
+          allowSaveProgress: template.settings?.allowSaveProgress ?? false,
+          enablePasswordProtection: template.settings?.enablePasswordProtection ?? false,
+          enableRecaptcha: template.settings?.enableRecaptcha ?? false,
+          enableAnalytics: template.settings?.enableAnalytics ?? true,
+          enableCookieConsent: template.settings?.enableCookieConsent ?? true,
+          languages: template.settings?.languages ?? ['en'],
+          defaultLanguage: template.settings?.defaultLanguage ?? 'en',
+          enableTranslation: template.settings?.enableTranslation ?? false,
+          accessibilityMode: template.settings?.accessibilityMode ?? false,
+          highContrastMode: template.settings?.highContrastMode ?? false,
+          screenReaderOptimized: template.settings?.screenReaderOptimized ?? false
+        }
+      };
+    }
+
+    return {
+      title: 'New Enhanced Form',
+      description: 'Create your form with advanced features',
+      questions: [],
+      settings: {
+        theme: 'modern',
+        brandColor: '#3b82f6',
+        submitButtonText: 'Submit',
+        thankYouMessage: 'Thank you for your submission!',
+        collectEmails: false,
+        requireLogin: false,
+        allowAnonymous: true,
+        enableProgress: true,
+        showQuestionNumbers: true,
+        randomizeQuestions: false,
+        allowSaveProgress: false,
+        enablePasswordProtection: false,
+        enableRecaptcha: false,
+        enableAnalytics: true,
+        enableCookieConsent: true,
+        languages: ['en'],
+        defaultLanguage: 'en',
+        enableTranslation: false,
+        accessibilityMode: false,
+        highContrastMode: false,
+        screenReaderOptimized: false
+      }
+    };
   };
 
   const saveForm = async () => {
@@ -260,8 +379,11 @@ const EnhancedFormBuilder: React.FC = () => {
         await apiService.createForm(formData);
       }
       
+      // Mark form as saved to enable sharing and analytics tabs
+      setIsFormSaved(true);
+      
       // Show success message
-      alert('Form saved successfully!');
+      alert('Form saved successfully! You can now access sharing options and analytics.');
     } catch (error) {
       console.error('Error saving form:', error);
       alert('Error saving form. Please try again.');
@@ -440,6 +562,7 @@ const EnhancedFormBuilder: React.FC = () => {
               questions={questions}
               pages={pages}
               onPagesChange={setPages}
+              onQuestionsChange={setQuestions}
               currentPage={currentPage}
               onCurrentPageChange={setCurrentPage}
             />
@@ -780,6 +903,29 @@ const EnhancedFormBuilder: React.FC = () => {
         );
 
       case 'sharing':
+        if (!isFormSaved) {
+          return (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                    <Share2 className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Save Your Form First</h3>
+                    <p className="text-gray-600 max-w-md mx-auto">
+                      Sharing options will be available after you save your form. This ensures you're sharing a complete, working form.
+                    </p>
+                  </div>
+                  <Button onClick={saveForm} className="mt-4">
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Form to Enable Sharing
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        }
         return form ? (
           <OmnichannelFeatures
             formId={form.id}
@@ -816,6 +962,29 @@ const EnhancedFormBuilder: React.FC = () => {
         );
 
       case 'analytics':
+        if (!isFormSaved) {
+          return (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                    <BarChart3 className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Save Your Form First</h3>
+                    <p className="text-gray-600 max-w-md mx-auto">
+                      Analytics and insights will be available after you save your form and start collecting responses.
+                    </p>
+                  </div>
+                  <Button onClick={saveForm} className="mt-4">
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Form to Enable Analytics
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        }
         return form ? (
           <AdvancedAnalytics
             formId={form.id}
@@ -828,7 +997,7 @@ const EnhancedFormBuilder: React.FC = () => {
           <IntegrationsHub
             integrations={integrations}
             onIntegrationUpdate={() => {}}
-            onIntegrationConnect={() => {}}
+            onIntegrationConnect={(_id, _data) => {}}
             onIntegrationDisconnect={() => {}}
           />
         );
@@ -931,9 +1100,14 @@ const EnhancedFormBuilder: React.FC = () => {
               <Settings className="w-4 h-4" />
               Settings
             </TabsTrigger>
-            <TabsTrigger value="sharing" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="sharing" 
+              className={`flex items-center gap-2 ${!isFormSaved ? 'opacity-50' : ''}`}
+              disabled={!isFormSaved}
+            >
               <Share2 className="w-4 h-4" />
               Sharing
+              {!isFormSaved && <Lock className="w-3 h-3 ml-1" />}
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -943,9 +1117,14 @@ const EnhancedFormBuilder: React.FC = () => {
               <CreditCard className="w-4 h-4" />
               Payments
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="analytics" 
+              className={`flex items-center gap-2 ${!isFormSaved ? 'opacity-50' : ''}`}
+              disabled={!isFormSaved}
+            >
               <BarChart3 className="w-4 h-4" />
               Analytics
+              {!isFormSaved && <Lock className="w-3 h-3 ml-1" />}
             </TabsTrigger>
             <TabsTrigger value="integrations" className="flex items-center gap-2">
               <Zap className="w-4 h-4" />

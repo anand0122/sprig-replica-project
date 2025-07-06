@@ -59,7 +59,7 @@ interface Form {
     logo?: string;
     showPoweredBy: boolean;
   };
-  status: 'active' | 'inactive' | 'draft';
+  status: 'active' | 'inactive' | 'draft' | 'published';
   createdAt: string;
   expiresAt?: string;
 }
@@ -85,91 +85,145 @@ const PublicForm = () => {
   }, [id]);
 
   const loadForm = (formId: string) => {
-    // Get form from localStorage (in real app, this would be an API call)
-    try {
-      const forms = JSON.parse(localStorage.getItem('formpulse_forms') || '[]');
-      const foundForm = forms.find((f: Form) => f.id === formId);
-      
-      if (!foundForm) {
-        // Create a sample form for demonstration
-        const sampleForm: Form = {
-          id: formId,
-          title: 'Customer Feedback Survey',
-          description: 'Help us improve our service by sharing your feedback',
-          questions: [
-            {
-              id: 'name',
-              type: 'text',
-              question: 'What is your name?',
-              required: true
-            },
-            {
-              id: 'email',
-              type: 'email',
-              question: 'What is your email address?',
-              description: 'We\'ll use this to follow up if needed',
-              required: true,
-              validation: {
-                pattern: '^[^@]+@[^@]+\\.[^@]+$',
-                message: 'Please enter a valid email address'
-              }
-            },
-            {
-              id: 'satisfaction',
-              type: 'rating',
-              question: 'How satisfied are you with our service?',
-              required: true,
-              validation: { min: 1, max: 5 }
-            },
-            {
-              id: 'recommendation',
-              type: 'radio',
-              question: 'Would you recommend us to others?',
-              required: true,
-              options: ['Definitely', 'Probably', 'Not sure', 'Probably not', 'Definitely not']
-            },
-            {
-              id: 'features',
-              type: 'checkbox',
-              question: 'Which features do you use most? (Select all that apply)',
-              required: false,
-              options: ['Dashboard', 'Analytics', 'Reports', 'Integrations', 'Mobile App']
-            },
-            {
-              id: 'feedback',
-              type: 'textarea',
-              question: 'Any additional feedback or suggestions?',
-              description: 'Please share any thoughts on how we can improve',
-              required: false
+    // Primary key used by builder
+    let forms = JSON.parse(localStorage.getItem('savedForms') || '[]');
+    // Back-compat old key
+    if (forms.length === 0) {
+      forms = JSON.parse(localStorage.getItem('formpulse_forms') || '[]');
+    }
+    const foundForm = forms.find((f: Form) => f.id === formId);
+    
+    if (!foundForm) {
+      // Create a sample form for demonstration
+      const sampleForm: Form = {
+        id: formId,
+        title: 'Customer Feedback Survey',
+        description: 'Help us improve our service by sharing your feedback',
+        questions: [
+          {
+            id: 'name',
+            type: 'text',
+            question: 'What is your name?',
+            required: true
+          },
+          {
+            id: 'email',
+            type: 'email',
+            question: 'What is your email address?',
+            description: 'We\'ll use this to follow up if needed',
+            required: true,
+            validation: {
+              pattern: '^[^@]+@[^@]+\\.[^@]+$',
+              message: 'Please enter a valid email address'
             }
-          ],
-          settings: {
-            allowMultipleSubmissions: false,
-            showProgressBar: true,
-            showQuestionNumbers: true,
-            submitButtonText: 'Submit Feedback',
-            thankYouMessage: 'Thank you for your feedback! We appreciate your time.',
-            collectEmail: true,
-            requireAuth: false
           },
-          branding: {
-            primaryColor: '#3b82f6',
-            showPoweredBy: true
+          {
+            id: 'satisfaction',
+            type: 'rating',
+            question: 'How satisfied are you with our service?',
+            required: true,
+            validation: { min: 1, max: 5 }
           },
-          status: 'active',
-          createdAt: new Date().toISOString()
-        };
-        setForm(sampleForm);
-      } else {
-        setForm(foundForm);
+          {
+            id: 'recommendation',
+            type: 'radio',
+            question: 'Would you recommend us to others?',
+            required: true,
+            options: ['Definitely', 'Probably', 'Not sure', 'Probably not', 'Definitely not']
+          },
+          {
+            id: 'features',
+            type: 'checkbox',
+            question: 'Which features do you use most? (Select all that apply)',
+            required: false,
+            options: ['Dashboard', 'Analytics', 'Reports', 'Integrations', 'Mobile App']
+          },
+          {
+            id: 'feedback',
+            type: 'textarea',
+            question: 'Any additional feedback or suggestions?',
+            description: 'Please share any thoughts on how we can improve',
+            required: false
+          }
+        ],
+        settings: {
+          allowMultipleSubmissions: false,
+          showProgressBar: true,
+          showQuestionNumbers: true,
+          submitButtonText: 'Submit Feedback',
+          thankYouMessage: 'Thank you for your feedback! We appreciate your time.',
+          collectEmail: true,
+          requireAuth: false
+        },
+        branding: {
+          primaryColor: '#3b82f6',
+          showPoweredBy: true
+        },
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+      setForm(sampleForm);
+    } else {
+      // Ensure branding defaults exist to prevent runtime errors
+      if (!('branding' in foundForm) || !foundForm.branding) {
+        (foundForm as any).branding = { primaryColor: '#3b82f6', showPoweredBy: true };
       }
-    } catch (error) {
-      console.error('Error loading form:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load form. Please try again.",
-        variant: "destructive"
+      // Ensure status default
+      if (!foundForm.status) {
+        (foundForm as any).status = 'active';
+      }
+      // Ensure settings defaults
+      if (!foundForm.settings) {
+        (foundForm as any).settings = {
+          allowMultipleSubmissions: true,
+          showProgressBar: true,
+          showQuestionNumbers: true,
+          submitButtonText: 'Submit',
+          thankYouMessage: 'Thank you!',
+          collectEmail: false,
+          requireAuth: false,
+        };
+      }
+      setForm(foundForm);
+
+      // Normalize question types for compatibility
+      (foundForm.questions as any[]).forEach((q) => {
+        switch (q.type) {
+          case 'short-answer':
+            q.type = 'text';
+            break;
+          case 'paragraph':
+            q.type = 'textarea';
+            break;
+          case 'multiple-choice':
+            q.type = 'radio';
+            break;
+          case 'checkboxes':
+            q.type = 'checkbox';
+            break;
+          case 'dropdown':
+            q.type = 'select';
+            break;
+          case 'linear-scale':
+            q.type = 'rating';
+            if (!q.validation) q.validation = { min: q.scaleMin || 1, max: q.scaleMax || 5 };
+            break;
+          case 'file-upload':
+            q.type = 'file';
+            break;
+          case 'long-answer':
+            q.type = 'textarea';
+            break;
+          case 'phone':
+            q.type = 'text';
+            if (!q.validation) q.validation = { pattern: '^\\+?[0-9 .-]{7,15}$', message: 'Enter a valid phone number' };
+            break;
+          default:
+            q.type = 'text';
+            break;
+        }
       });
+      setForm({ ...foundForm });
     }
   };
 
@@ -487,7 +541,7 @@ const PublicForm = () => {
     );
   }
 
-  if (form.status !== 'active') {
+  if (form.status && form.status !== 'active' && form.status !== 'published') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -542,6 +596,20 @@ const PublicForm = () => {
     );
   }
 
+  // Guard: form without questions
+  if (!form.questions || form.questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Questions</h2>
+            <p className="text-gray-600">This form doesn\'t contain any questions yet.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const currentQuestion = form.questions[currentStep];
   const progress = ((currentStep + 1) / form.questions.length) * 100;
 
@@ -561,7 +629,7 @@ const PublicForm = () => {
         </Card>
 
         {/* Progress Bar */}
-        {form.settings.showProgressBar && (
+        {form.settings?.showProgressBar && (
           <div className="mb-6">
             <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
               <span>Progress</span>
@@ -628,7 +696,7 @@ const PublicForm = () => {
                   ) : currentStep === form.questions.length - 1 ? (
                     <>
                       <Send className="w-4 h-4" />
-                      {form.settings.submitButtonText}
+                      {form.settings?.submitButtonText || 'Submit'}
                     </>
                   ) : (
                     <>

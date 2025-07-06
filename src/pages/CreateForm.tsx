@@ -38,13 +38,111 @@ import {
   ClipboardList,
   Star,
   TrendingUp,
-  Mail
+  Mail,
+  Crown,
+  Settings,
+  Workflow,
+  BarChart3,
+  CreditCard,
+  Globe2,
+  Palette
 } from "lucide-react";
 
 
 const CreateForm = () => {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [selectedBuilderType, setSelectedBuilderType] = useState<'basic' | 'enhanced'>('enhanced');
+  const [activeTab, setActiveTab] = useState<'forms' | 'quizzes'>('forms');
+
+  // Builder type comparison for Forms
+  const formBuilderTypes = {
+    enhanced: {
+      title: "Enhanced Builder",
+      subtitle: "Enterprise-grade form creation",
+      description: "Full-featured builder with AI assistance, conditional logic, workflows, team collaboration, payments, and 40+ integrations",
+      icon: <Crown className="w-6 h-6 text-purple-600" />,
+      color: "bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200",
+      features: [
+        "AI-Powered Generation",
+        "Conditional Logic & Workflows", 
+        "Multi-Step Forms",
+        "Team Collaboration",
+        "Payment Integration",
+        "Advanced Analytics",
+        "40+ Integrations",
+        "Custom Branding"
+      ],
+      badge: "Recommended",
+      badgeColor: "bg-purple-100 text-purple-700"
+    },
+    basic: {
+      title: "Basic Builder",
+      subtitle: "Simple form creation",
+      description: "Straightforward form builder for basic data collection with essential question types and simple customization",
+      icon: <FileText className="w-6 h-6 text-gray-600" />,
+      color: "bg-gray-50 border-gray-200",
+      features: [
+        "Basic Question Types",
+        "Simple Customization",
+        "Form Templates",
+        "Response Collection",
+        "Basic Analytics",
+        "Email Notifications",
+        "Public Sharing",
+        "Export Data"
+      ],
+      badge: "Quick Start",
+      badgeColor: "bg-gray-100 text-gray-700"
+    }
+  };
+
+  // Builder type comparison for Quizzes
+  const quizBuilderTypes = {
+    enhanced: {
+      title: "AI Quiz Builder",
+      subtitle: "Intelligent assessment creation",
+      description: "Advanced quiz builder with AI content generation, auto-grading, adaptive questioning, and comprehensive analytics",
+      icon: <Brain className="w-6 h-6 text-purple-600" />,
+      color: "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200",
+      features: [
+        "AI Content Generation",
+        "Auto-Grading System",
+        "Adaptive Questions",
+        "Smart Analytics",
+        "Performance Tracking",
+        "Question Banks",
+        "Timed Assessments",
+        "Certification Support"
+      ],
+      badge: "AI-Powered",
+      badgeColor: "bg-purple-100 text-purple-700"
+    },
+    basic: {
+      title: "Simple Quiz Builder",
+      subtitle: "Quick assessment creation",
+      description: "Easy-to-use quiz builder for creating basic assessments with multiple choice, true/false, and simple scoring",
+      icon: <Trophy className="w-6 h-6 text-orange-600" />,
+      color: "bg-orange-50 border-orange-200",
+      features: [
+        "Multiple Choice Questions",
+        "True/False Questions",
+        "Basic Scoring",
+        "Time Limits",
+        "Result Pages",
+        "Simple Analytics",
+        "Public Sharing",
+        "Export Results"
+      ],
+      badge: "Quick Start",
+      badgeColor: "bg-orange-100 text-orange-700"
+    }
+  };
+
+  // Get current builder types based on active tab
+  const getCurrentBuilderTypes = () => {
+    return activeTab === 'forms' ? formBuilderTypes : quizBuilderTypes;
+  };
 
   // Form templates organized by user scenarios
   const formTemplates = {
@@ -316,13 +414,60 @@ const CreateForm = () => {
     }
   ];
 
-  const handleMethodSelect = (methodId: string, type: 'form' | 'quiz' = 'form') => {
+  const handleMethodSelect = (methodId: string, type: 'form' | 'quiz' = 'form', builderType: 'basic' | 'enhanced' = 'enhanced') => {
     setSelectedMethod(methodId);
     if (type === 'quiz') {
       navigate(`/quiz/new?method=${methodId}`);
     } else {
-      navigate(`/forms/new/edit?method=${methodId}`);
+      if (builderType === 'enhanced') {
+        navigate(`/forms/new/enhanced?method=${methodId}`);
+      } else {
+        // For basic templates, pass the template ID directly
+        navigate(`/forms/new/edit?method=${methodId}&template=true`);
+      }
     }
+  };
+
+  // Basic form templates section
+  const basicFormTemplates = {
+    forms: [
+      {
+        id: "student-registration",
+        title: "Student Registration",
+        description: "Collect student information for enrollment and class assignments",
+        icon: <GraduationCap className="w-6 h-6 text-blue-600" />,
+        color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
+        features: ["Personal Info", "Academic Details", "Contact Info", "Additional Notes"],
+        category: "Education"
+      },
+      {
+        id: "job-application",
+        title: "Job Application",
+        description: "Standard job application form with work history and references",
+        icon: <Briefcase className="w-6 h-6 text-green-600" />,
+        color: "bg-green-50 border-green-200 hover:bg-green-100",
+        features: ["Personal Details", "Work History", "Education", "References"],
+        category: "Employment"
+      },
+      {
+        id: "event-registration",
+        title: "Event Registration",
+        description: "Register attendees for events and gatherings",
+        icon: <Calendar className="w-6 h-6 text-purple-600" />,
+        color: "bg-purple-50 border-purple-200 hover:bg-purple-100",
+        features: ["Attendee Info", "Event Selection", "Dietary Needs", "Special Requests"],
+        category: "Events"
+      },
+      {
+        id: "contact-form",
+        title: "Contact Form",
+        description: "Professional contact form with message and priority options",
+        icon: <Mail className="w-6 h-6 text-red-600" />,
+        color: "bg-red-50 border-red-200 hover:bg-red-100",
+        features: ["Contact Details", "Message", "Priority Level", "Department Selection"],
+        category: "Business"
+      }
+    ]
   };
 
   const renderFormTemplate = (template: any, category: string) => (
@@ -331,7 +476,7 @@ const CreateForm = () => {
       className={`cursor-pointer transition-all duration-200 ${template.color} ${
         selectedMethod === template.id ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'
       } h-full flex flex-col`}
-      onClick={() => handleMethodSelect(template.id, 'form')}
+      onClick={() => handleMethodSelect(template.id, 'form', selectedBuilderType)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between mb-2">
@@ -369,14 +514,27 @@ const CreateForm = () => {
         </div>
         
         <Button 
-          className="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-sm"
+          className={`w-full mt-4 text-xs px-3 py-2 h-auto min-h-[36px] ${
+            selectedBuilderType === 'enhanced' 
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
+              : 'bg-gradient-to-r from-blue-600 to-gray-600 hover:from-blue-700 hover:to-gray-700'
+          }`}
           onClick={(e) => {
             e.stopPropagation();
-            handleMethodSelect(template.id, 'form');
+            handleMethodSelect(template.id, 'form', selectedBuilderType);
           }}
         >
-          <Plus className="w-3 h-3 mr-2" />
-          Create Form
+          {selectedBuilderType === 'enhanced' ? (
+            <div className="flex items-center justify-center gap-1">
+              <Crown className="w-3 h-3 flex-shrink-0" />
+              <span className="whitespace-nowrap">Enhanced Builder</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-1">
+              <Plus className="w-3 h-3 flex-shrink-0" />
+              <span className="whitespace-nowrap">Basic Builder</span>
+            </div>
+          )}
         </Button>
       </CardContent>
     </Card>
@@ -445,11 +603,87 @@ const CreateForm = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Content</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Choose from scenario-based form templates or AI-powered quiz generators
+          Choose your builder type and select from scenario-based templates or AI-powered generators
         </p>
       </div>
 
-      <Tabs defaultValue="forms" className="w-full">
+      {/* Builder Type Selection */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Choose Your Builder</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {Object.entries(getCurrentBuilderTypes()).map(([type, config]) => (
+            <Card 
+              key={type}
+              className={`cursor-pointer transition-all duration-200 ${config.color} ${
+                selectedBuilderType === type ? 'ring-2 ring-purple-500 shadow-lg' : 'hover:shadow-md'
+              } relative`}
+              onClick={() => setSelectedBuilderType(type as 'basic' | 'enhanced')}
+            >
+              {type === 'enhanced' && (
+                <div className="absolute -top-2 -right-2">
+                  <Badge className={config.badgeColor}>
+                    {config.badge}
+                  </Badge>
+                </div>
+              )}
+              
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="p-3 bg-white rounded-lg shadow-sm">
+                    {config.icon}
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-bold text-gray-900">
+                      {config.title}
+                    </CardTitle>
+                    <p className="text-sm text-gray-600">{config.subtitle}</p>
+                  </div>
+                </div>
+                <CardDescription className="text-gray-700 leading-relaxed">
+                  {config.description}
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-gray-800">Key Features:</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {config.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                          type === 'enhanced' ? 'bg-purple-500' : 'bg-gray-500'
+                        }`}></div>
+                        <span className="truncate">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-center">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    selectedBuilderType === type 
+                      ? 'border-purple-500 bg-purple-500' 
+                      : 'border-gray-300'
+                  }`}>
+                    {selectedBuilderType === type && (
+                      <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <Tabs 
+        defaultValue="forms" 
+        className="w-full"
+        onValueChange={(value) => {
+          setActiveTab(value as 'forms' | 'quizzes');
+          setSelectedBuilderType('enhanced'); // Reset to enhanced when switching tabs
+        }}
+      >
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="forms" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
@@ -478,14 +712,20 @@ const CreateForm = () => {
             </Card>
             <Card className="text-center">
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-purple-600">Ready-Made</div>
-                <div className="text-sm text-gray-600">Templates</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {selectedBuilderType === 'enhanced' ? 'Enterprise' : 'Basic'}
+                </div>
+                <div className="text-sm text-gray-600">Builder Selected</div>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-orange-600">Customizable</div>
-                <div className="text-sm text-gray-600">Fields</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {selectedBuilderType === 'enhanced' ? '40+' : '8'}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {selectedBuilderType === 'enhanced' ? 'Integrations' : 'Features'}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -505,27 +745,53 @@ const CreateForm = () => {
             </div>
           ))}
 
-          {/* Traditional Form Builder */}
+          {/* Custom Form Builder */}
           <div className="pt-6 border-t border-gray-200">
-            <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200">
+            <Card className={selectedBuilderType === 'enhanced' 
+              ? "bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200" 
+              : "bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200"
+            }>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-white rounded-lg shadow-sm">
-                      <FileText className="w-6 h-6 text-gray-600" />
+                      {selectedBuilderType === 'enhanced' ? (
+                        <Crown className="w-6 h-6 text-purple-600" />
+                      ) : (
+                        <FileText className="w-6 h-6 text-gray-600" />
+                      )}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Custom Form Builder</h3>
-                      <p className="text-gray-600 text-sm">Start with a blank form and build from scratch using our drag-and-drop editor</p>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        Custom {selectedBuilderType === 'enhanced' ? 'Enhanced' : 'Basic'} Form Builder
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {selectedBuilderType === 'enhanced' 
+                          ? 'Start with a blank form using our enterprise builder with AI assistance, workflows, and advanced features'
+                          : 'Start with a blank form and build from scratch using our simple drag-and-drop editor'
+                        }
+                      </p>
                     </div>
                   </div>
                   <Button 
                     variant="outline" 
-                    onClick={() => navigate('/forms/new/edit?method=blank')}
-                    className="border-gray-300 hover:border-gray-400 flex-shrink-0"
+                    onClick={() => handleMethodSelect('blank', 'form', selectedBuilderType)}
+                    className={selectedBuilderType === 'enhanced' 
+                      ? "border-purple-300 text-purple-700 hover:bg-purple-50 flex-shrink-0" 
+                      : "border-gray-300 hover:border-gray-400 flex-shrink-0"
+                    }
                   >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Start Blank Form
+                    {selectedBuilderType === 'enhanced' ? (
+                      <>
+                        <Crown className="w-4 h-4 mr-2" />
+                        Start Enhanced Builder
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-4 h-4 mr-2" />
+                        Start Basic Builder
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -538,50 +804,68 @@ const CreateForm = () => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Card className="text-center">
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-purple-600">10</div>
-                <div className="text-sm text-gray-600">AI Generators</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {selectedBuilderType === 'enhanced' ? '10' : '5'}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {selectedBuilderType === 'enhanced' ? 'AI Generators' : 'Quiz Templates'}
+                </div>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-yellow-600">Auto</div>
-                <div className="text-sm text-gray-600">Scoring</div>
+                <div className="text-2xl font-bold text-yellow-600">
+                  {selectedBuilderType === 'enhanced' ? 'Smart' : 'Auto'}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {selectedBuilderType === 'enhanced' ? 'AI Scoring' : 'Basic Scoring'}
+                </div>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-red-600">Timed</div>
-                <div className="text-sm text-gray-600">Assessments</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {selectedBuilderType === 'enhanced' ? 'Adaptive' : 'Timed'}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {selectedBuilderType === 'enhanced' ? 'Questions' : 'Assessments'}
+                </div>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-green-600">Smart</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {selectedBuilderType === 'enhanced' ? 'Advanced' : 'Basic'}
+                </div>
                 <div className="text-sm text-gray-600">Analytics</div>
               </CardContent>
             </Card>
           </div>
 
-          {/* AI-Powered Quiz Generators */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-gray-900">AI-Powered Quiz Generators</h2>
-              <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700">
-                <Brain className="w-3 h-3 mr-1" />
-                AI Enhanced
-              </Badge>
+          {/* AI-Powered Quiz Generators - Only show for Enhanced builder */}
+          {selectedBuilderType === 'enhanced' && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-gray-900">AI-Powered Quiz Generators</h2>
+                <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700">
+                  <Brain className="w-3 h-3 mr-1" />
+                  AI Enhanced
+                </Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {quizCreationMethods.map((method) => renderQuizMethod(method))}
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {quizCreationMethods.map((method) => renderQuizMethod(method))}
-            </div>
-          </div>
+          )}
 
-          {/* Basic Quiz Templates */}
+          {/* Basic Quiz Templates - Show for both but with different emphasis */}
           <div className="space-y-4 pt-6 border-t border-gray-200">
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-gray-900">Quick Start Templates</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                {selectedBuilderType === 'enhanced' ? 'Quick Start Templates' : 'Quiz Templates'}
+              </h2>
               <Badge variant="outline" className="text-xs">
-                Ready to use
+                {selectedBuilderType === 'enhanced' ? 'Ready to use' : 'Simple & Fast'}
               </Badge>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -643,25 +927,51 @@ const CreateForm = () => {
 
           {/* Blank Quiz Builder */}
           <div className="pt-6 border-t border-gray-200">
-            <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+            <Card className={selectedBuilderType === 'enhanced' 
+              ? "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200" 
+              : "bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200"
+            }>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-white rounded-lg shadow-sm">
-                      <Trophy className="w-6 h-6 text-purple-600" />
+                      {selectedBuilderType === 'enhanced' ? (
+                        <Brain className="w-6 h-6 text-purple-600" />
+                      ) : (
+                        <Trophy className="w-6 h-6 text-orange-600" />
+                      )}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Custom Quiz Builder</h3>
-                      <p className="text-gray-600 text-sm">Start with a blank quiz and build custom assessments with scoring, timers, and rankings</p>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        Custom {selectedBuilderType === 'enhanced' ? 'AI Quiz Builder' : 'Quiz Builder'}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {selectedBuilderType === 'enhanced' 
+                          ? 'Start with a blank quiz using our AI-powered builder with smart question generation, adaptive scoring, and advanced analytics'
+                          : 'Start with a blank quiz and build simple assessments with basic question types, scoring, and timers'
+                        }
+                      </p>
                     </div>
                   </div>
                   <Button 
                     variant="outline" 
                     onClick={() => navigate('/quiz/new?method=blank')}
-                    className="border-purple-300 text-purple-700 hover:bg-purple-50 flex-shrink-0"
+                    className={selectedBuilderType === 'enhanced' 
+                      ? "border-purple-300 text-purple-700 hover:bg-purple-50 flex-shrink-0" 
+                      : "border-orange-300 text-orange-700 hover:bg-orange-50 flex-shrink-0"
+                    }
                   >
-                    <Trophy className="w-4 h-4 mr-2" />
-                    Start Blank Quiz
+                    {selectedBuilderType === 'enhanced' ? (
+                      <>
+                        <Brain className="w-4 h-4 mr-2" />
+                        Start AI Quiz Builder
+                      </>
+                    ) : (
+                      <>
+                        <Trophy className="w-4 h-4 mr-2" />
+                        Start Basic Quiz
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>

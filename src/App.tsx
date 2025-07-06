@@ -74,6 +74,11 @@ function App() {
               <FormBuilder />
             </ProtectedRoute>
           } />
+          <Route path="/forms/new/enhanced" element={
+            <ProtectedRoute>
+              <EnhancedFormBuilder />
+            </ProtectedRoute>
+          } />
           <Route path="/forms/:id/edit" element={
             <ProtectedRoute>
               <FormBuilder />

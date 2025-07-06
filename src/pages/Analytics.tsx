@@ -182,10 +182,10 @@ const Analytics = () => {
               </div>
               <Eye className="w-8 h-8 text-blue-600" />
             </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
 
-        <Card>
+              <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -198,10 +198,10 @@ const Analytics = () => {
               </div>
               <Users className="w-8 h-8 text-green-600" />
             </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
 
-        <Card>
+              <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -213,11 +213,11 @@ const Analytics = () => {
                 </div>
               </div>
               <Target className="w-8 h-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
-        <Card>
+              <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -230,9 +230,9 @@ const Analytics = () => {
               </div>
               <Clock className="w-8 h-8 text-orange-600" />
             </div>
-          </CardContent>
-        </Card>
-      </div>
+                </CardContent>
+              </Card>
+            </div>
 
       {/* AI Insights Card */}
       <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
@@ -403,11 +403,11 @@ const Analytics = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {analytics.map((form) => (
               <div key={form.formId} className="space-y-4">
-                <Card>
-                  <CardHeader>
+              <Card>
+                <CardHeader>
                     <CardTitle className="text-lg">Device Breakdown - {form.formTitle}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                </CardHeader>
+                <CardContent>
                     <div className="space-y-3">
                       {Object.entries(form.demographics.device).map(([device, percentage]) => (
                         <div key={device} className="flex items-center gap-3">
@@ -438,9 +438,9 @@ const Analytics = () => {
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                </CardContent>
+              </Card>
+            </div>
             ))}
           </div>
         </TabsContent>
@@ -452,8 +452,8 @@ const Analytics = () => {
                 <CardTitle>Question Performance - {form.formTitle}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div>
+                  <div className="space-y-4">
+                        <div>
                     <h4 className="font-medium text-gray-900 mb-2">Top Performing Questions</h4>
                     <div className="space-y-1">
                       {form.topPerformingQuestions.map((question, index) => (
@@ -472,9 +472,9 @@ const Analytics = () => {
                         <div key={index} className="flex items-center gap-2 text-sm">
                           <AlertCircle className="w-4 h-4 text-red-600" />
                           <span>{question} - High drop-off rate</span>
-                        </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
+                  </div>
                   </div>
                 </div>
               </CardContent>
@@ -482,7 +482,7 @@ const Analytics = () => {
           ))}
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
   );
 };
 

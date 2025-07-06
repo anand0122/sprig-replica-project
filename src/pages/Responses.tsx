@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
+  ArrowLeft,
   Eye, 
   Download, 
   Filter, 
@@ -25,6 +27,9 @@ import {
   AlertCircle,
   RefreshCw
 } from "lucide-react";
+import { useResponses } from "@/hooks/useResponses";
+import { useForms } from '@/hooks/useForms';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface FormResponse {
   id: string;
@@ -46,107 +51,67 @@ interface FormResponse {
 }
 
 const Responses = () => {
-  const [responses, setResponses] = useState<FormResponse[]>([]);
+  const { data: forms = [], isLoading: formsLoading } = useForms();
+  const navigate = useNavigate();
   const [selectedForm, setSelectedForm] = useState<string>('all');
+  const [responses, setResponses] = useState<FormResponse[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'complete' | 'partial' | 'abandoned'>('all');
   const [selectedResponse, setSelectedResponse] = useState<FormResponse | null>(null);
+  const { data: backendResponses = [], isFetching } = useResponses(selectedForm !== 'all' ? selectedForm : '');
 
   useEffect(() => {
-    loadResponses();
-  }, []);
-
-  const loadResponses = () => {
-    // Mock response data
-    const mockResponses: FormResponse[] = [
-      {
-        id: 'resp_1',
-        formId: 'demo-1',
-        formTitle: 'Customer Feedback Survey',
-        submittedAt: new Date(Date.now() - 3600000).toISOString(),
-        submittedBy: {
-          name: 'Alice Johnson',
-          email: 'alice@example.com',
-          ip: '192.168.1.1',
-          location: 'New York, US',
-          device: 'Desktop'
-        },
-        responses: {
-          'q1': 'Alice Johnson',
-          'q2': 'alice@example.com',
-          'q3': 'Very Satisfied',
-          'q4': 'The service was excellent and the team was very helpful.'
-        },
-        completionTime: 180,
-        status: 'complete',
-        rating: 5
-      },
-      {
-        id: 'resp_2',
-        formId: 'demo-1',
-        formTitle: 'Customer Feedback Survey',
-        submittedAt: new Date(Date.now() - 7200000).toISOString(),
-        submittedBy: {
-          name: 'Bob Smith',
-          email: 'bob@example.com',
-          ip: '192.168.1.2',
-          location: 'California, US',
-          device: 'Mobile'
-        },
-        responses: {
-          'q1': 'Bob Smith',
-          'q2': 'bob@example.com',
-          'q3': 'Satisfied'
-        },
-        completionTime: 120,
-        status: 'partial',
-        rating: 4
-      },
-      {
-        id: 'resp_3',
-        formId: 'demo-2',
-        formTitle: 'Product Knowledge Quiz',
-        submittedAt: new Date(Date.now() - 10800000).toISOString(),
-        submittedBy: {
-          name: 'Carol Davis',
-          email: 'carol@example.com',
-          ip: '192.168.1.3',
-          location: 'London, UK',
-          device: 'Desktop'
-        },
-        responses: {
-          'q1': 'Software',
-          'q2': 'Our software helps businesses streamline their operations and improve efficiency through automation and intelligent insights.'
-        },
-        completionTime: 240,
-        status: 'complete',
-        score: 85
-      },
-      {
-        id: 'resp_4',
-        formId: 'demo-1',
-        formTitle: 'Customer Feedback Survey',
-        submittedAt: new Date(Date.now() - 14400000).toISOString(),
-        submittedBy: {
-          name: 'David Wilson',
-          email: 'david@example.com',
-          ip: '192.168.1.4',
-          location: 'Toronto, CA',
-          device: 'Tablet'
-        },
-        responses: {
-          'q1': 'David Wilson',
-          'q2': 'david@example.com',
-          'q3': 'Neutral',
-          'q4': 'The service was okay, but there is room for improvement.'
-        },
-        completionTime: 200,
-        status: 'complete',
-        rating: 3
+    if (!isFetching && selectedForm) {
+      if (backendResponses.length) {
+        // map backend structure to UI structure
+        const mapped = backendResponses.map((r: any) => ({
+          id: r.id,
+          formId: r.formId,
+          formTitle: '',
+          submittedAt: r.submittedAt,
+          submittedBy: {
+            name: r.metadata?.name,
+            email: r.metadata?.email,
+            ip: r.metadata?.ipAddress,
+            location: r.metadata?.location,
+            device: r.metadata?.device,
+          },
+          responses: r.data,
+          completionTime: r.timeSpent || 0,
+          status: r.status.toLowerCase(),
+          score: r.score,
+        }));
+        setResponses(prev => {
+          if (prev.length === mapped.length && prev.every((p,i)=>p.id===mapped[i].id)) {
+            return prev; // no change → no re-render
+          }
+          return mapped;
+        });
+      } else {
+        // Fallback to localStorage responses (client-side forms)
+        const local = JSON.parse(localStorage.getItem('formpulse_responses') || '[]');
+        const mapped = local.map((r: any) => ({
+          id: r.id,
+          formId: r.formId,
+          formTitle: forms.find(f=>f.id===r.formId)?.title || '',
+          submittedAt: r.submittedAt,
+          submittedBy: {
+            name: r.responses?.name || 'Anonymous',
+            email: r.responses?.email || '',
+          },
+          responses: r.responses,
+          completionTime: Math.round((r.timeSpent || 0)/1000),
+          status: 'complete',
+        }));
+        setResponses(prev => {
+          if (prev.length === mapped.length && prev.every((p,i)=>p.id===mapped[i].id)) {
+            return prev;
+          }
+          return mapped;
+        });
       }
-    ];
-    setResponses(mockResponses);
-  };
+    }
+  }, [backendResponses, isFetching, selectedForm]);
 
   const filteredResponses = responses.filter(response => {
     const matchesForm = selectedForm === 'all' || response.formId === selectedForm;
@@ -199,13 +164,96 @@ const Responses = () => {
 
   const uniqueForms = Array.from(new Set(responses.map(r => r.formId)));
 
+  // Build helper: responses count per form
+  const responseCountByForm: Record<string, number> = {};
+  responses.forEach(r => {
+    responseCountByForm[r.formId] = (responseCountByForm[r.formId] || 0) + 1;
+  });
+
+  // For quizzes: average score
+  const avgScoreByForm: Record<string, number> = {};
+  responses.forEach(r => {
+    if (typeof r.score === 'number') {
+      const key = r.formId;
+      avgScoreByForm[key] = (avgScoreByForm[key] || 0) + r.score;
+    }
+  });
+  Object.keys(avgScoreByForm).forEach(fid => {
+    avgScoreByForm[fid] = Math.round(avgScoreByForm[fid] / (responseCountByForm[fid] || 1));
+  });
+
+  // If 'all' view – show forms list overview first
+  if (selectedForm === 'all') {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">Responses by Form</h1>
+          {formsLoading && <Skeleton className="w-24 h-6" />}
+        </div>
+
+        {formsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({length:6}).map((_,i)=>(<Skeleton key={i} className="h-40"/>))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {forms.map(f => (
+              <Card
+                key={f.id}
+                className="cursor-pointer group transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
+                onClick={() => setSelectedForm(f.id)}
+              >
+                <div className="p-6 space-y-6">
+                  {/* title + icon */}
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold leading-tight text-gray-900 group-hover:text-blue-600">
+                      {f.title}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/forms/${f.id}/analytics`); }}
+                        title="View Analytics"
+                      >
+                        <BarChart3 className="w-5 h-5 text-green-600" />
+                      </Button>
+                      <div className={`p-2 rounded-lg ${f.type==='quiz' ? 'bg-purple-50 group-hover:bg-purple-100' : 'bg-blue-50 group-hover:bg-blue-100'}`}>
+                        {f.type==='quiz' ? <Star className="w-5 h-5 text-purple-600"/> : <Eye className="w-5 h-5 text-blue-600"/>}
+                      </div>
+                    </div>
+                  </div>
+                  {/* metric */}
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Responses</p>
+                    <p className="text-4xl font-extrabold text-gray-900 group-hover:text-blue-600">
+                      {responseCountByForm[f.id] || 0}
+                    </p>
+                    {f.type==='quiz' && (
+                      <p className="text-sm text-purple-600 mt-1">Avg Score: {avgScoreByForm[f.id] || 0}%</p>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Responses</h1>
-          <p className="text-gray-600 mt-1">View and analyze form submissions</p>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="icon" onClick={() => setSelectedForm('all')}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Responses</h1>
+            <p className="text-gray-600 mt-1">View and analyze form submissions</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
@@ -418,20 +466,26 @@ const Responses = () => {
                 
                 <TabsContent value="responses" className="space-y-4">
                   <div className="space-y-4">
-                    {Object.entries(selectedResponse.responses).map(([questionId, answer], index) => (
-                      <Card key={questionId}>
-                        <CardContent className="p-4">
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-gray-900">
-                              Question {index + 1}
-                            </h4>
-                            <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                              {typeof answer === 'string' ? answer : JSON.stringify(answer)}
+                    {Object.entries(selectedResponse.responses).map(([questionId, answer], index) => {
+                      const formObj = forms.find(f => f.id === selectedResponse.formId);
+                      const questionObj: any = formObj?.questions?.find((q: any) => q.id === questionId);
+                      const questionLabel = questionObj?.question || questionObj?.label || `Question ${index + 1}`;
+
+                      return (
+                        <Card key={questionId}>
+                          <CardContent className="p-4">
+                            <div className="space-y-2">
+                              <h4 className="font-medium text-gray-900">
+                                {questionLabel}
+                              </h4>
+                              <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded break-words">
+                                {typeof answer === 'string' ? answer : JSON.stringify(answer)}
+                              </div>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </TabsContent>
                 

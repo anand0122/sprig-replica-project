@@ -60,12 +60,19 @@ interface Integration {
     siteKey?: string;
     trackingId?: string;
     measurementId?: string;
+    databaseId?: string;
     [key: string]: any;
   };
   triggers: string[];
   actions: string[];
   lastSync?: Date;
   syncCount?: number;
+  credentials?: {
+    apiKey?: string;
+    client_email?: string;
+    private_key?: string;
+    [key: string]: any;
+  };
 }
 
 interface IntegrationTemplate {
@@ -594,7 +601,10 @@ const mockTemplates: IntegrationTemplate[] = [
 interface IntegrationsHubProps {
   integrations?: Integration[];
   onIntegrationUpdate: (integration: Integration) => void;
-  onIntegrationConnect: (integrationId: string, config: any) => void;
+  onIntegrationConnect: (
+    integrationId: string,
+    data: { config: any; credentials: any }
+  ) => void;
   onIntegrationDisconnect: (integrationId: string) => void;
 }
 
@@ -642,14 +652,25 @@ export const IntegrationsHub: React.FC<IntegrationsHubProps> = ({
   const handleConnect = (integration: Integration) => {
     if (integration.status === 'connected') {
       onIntegrationDisconnect(integration.id);
-    } else {
-      setConfiguringIntegration(integration);
+      return;
     }
+
+    // For OAuth-based integrations, start connect immediately
+    if (['google_sheets', 'notion'].includes(integration.id)) {
+      onIntegrationConnect(integration.id, { config: {}, credentials: {} });
+      return;
+    }
+
+    // Otherwise open configuration modal
+    setConfiguringIntegration(integration);
   };
 
   const saveConfiguration = () => {
     if (configuringIntegration) {
-      onIntegrationConnect(configuringIntegration.id, configuringIntegration.config);
+      onIntegrationConnect(configuringIntegration.id, {
+        config: configuringIntegration.config,
+        credentials: configuringIntegration.credentials || {},
+      });
       setConfiguringIntegration(null);
     }
   };
@@ -1120,6 +1141,35 @@ export const IntegrationsHub: React.FC<IntegrationsHubProps> = ({
                       placeholder="Form Responses"
                     />
                   </div>
+                  <div>
+                    <Label>Service Account Email</Label>
+                    <Input
+                      value={configuringIntegration.credentials?.client_email || ''}
+                      onChange={(e) => setConfiguringIntegration({
+                        ...configuringIntegration,
+                        credentials: {
+                          ...configuringIntegration.credentials,
+                          client_email: e.target.value,
+                        },
+                      })}
+                      placeholder="service-account@project.iam.gserviceaccount.com"
+                    />
+                  </div>
+                  <div>
+                    <Label>Private Key</Label>
+                    <Textarea
+                      rows={4}
+                      value={configuringIntegration.credentials?.private_key || ''}
+                      onChange={(e) => setConfiguringIntegration({
+                        ...configuringIntegration,
+                        credentials: {
+                          ...configuringIntegration.credentials,
+                          private_key: e.target.value,
+                        },
+                      })}
+                      placeholder="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+                    />
+                  </div>
                 </>
               )}
 
@@ -1145,6 +1195,34 @@ export const IntegrationsHub: React.FC<IntegrationsHubProps> = ({
                         config: { ...configuringIntegration.config, channel: e.target.value }
                       })}
                       placeholder="#general"
+                    />
+                  </div>
+                </>
+              )}
+
+              {configuringIntegration.id === 'notion' && (
+                <>
+                  <div>
+                    <Label>Database ID</Label>
+                    <Input
+                      value={configuringIntegration.config.databaseId || ''}
+                      onChange={(e) => setConfiguringIntegration({
+                        ...configuringIntegration,
+                        config: { ...configuringIntegration.config, databaseId: e.target.value }
+                      })}
+                      placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
+                    />
+                  </div>
+                  <div>
+                    <Label>Integration Secret (Notion API Key)</Label>
+                    <Input
+                      type="password"
+                      value={configuringIntegration.credentials?.apiKey || ''}
+                      onChange={(e) => setConfiguringIntegration({
+                        ...configuringIntegration,
+                        credentials: { ...configuringIntegration.credentials, apiKey: e.target.value }
+                      })}
+                      placeholder="secret_..."
                     />
                   </div>
                 </>

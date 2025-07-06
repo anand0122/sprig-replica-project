@@ -66,7 +66,7 @@ interface FormAnalytics {
 }
 
 const FormAnalytics = () => {
-  const { formId } = useParams();
+  const { id: formId } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState<any>(null);
   const [analytics, setAnalytics] = useState<FormAnalytics | null>(null);
@@ -268,9 +268,9 @@ const FormAnalytics = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Not Found</h1>
-          <Button onClick={() => navigate('/forms')}>
+          <Button onClick={() => navigate(-1)}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Forms
+            Back to Responses
           </Button>
         </div>
       </div>
@@ -285,10 +285,10 @@ const FormAnalytics = () => {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => navigate('/forms')}
+            onClick={() => navigate(-1)}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Forms
+            Back to Responses
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{form.title}</h1>

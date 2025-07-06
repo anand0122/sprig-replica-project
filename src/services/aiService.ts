@@ -116,6 +116,58 @@ interface AIInsight {
   actionable: boolean;
 }
 
+export const FORM_TEMPLATES = {
+  'student-registration': {
+    title: 'Student Registration Form',
+    description: 'Collect student information for enrollment and class assignments',
+    questions: [
+      {
+        id: 'name',
+        type: 'short-answer',
+        question: 'Full Name',
+        required: true,
+        placeholder: 'Enter your full name',
+        description: 'Please enter your legal full name as it appears on official documents'
+      },
+      {
+        id: 'email',
+        type: 'email',
+        question: 'Email Address',
+        required: true,
+        placeholder: 'Enter your email address',
+        description: 'We will use this email for all communications'
+      },
+      {
+        id: 'dob',
+        type: 'date',
+        question: 'Date of Birth',
+        required: true,
+        description: 'Must be at least 16 years old to register'
+      },
+      {
+        id: 'grade',
+        type: 'multiple-choice',
+        question: 'Grade Level',
+        required: true,
+        options: ['Freshman', 'Sophomore', 'Junior', 'Senior']
+      },
+      {
+        id: 'comments',
+        type: 'paragraph',
+        question: 'Additional Comments',
+        required: false,
+        placeholder: 'Any additional information you would like to share',
+        description: 'Optional: Include any special requirements or notes'
+      }
+    ],
+    settings: {
+      theme: 'educational',
+      submitButtonText: 'Submit Registration',
+      thankYouMessage: 'Thank you for registering! We will review your information and contact you soon.'
+    }
+  }
+};
+
 class AIService {
   private apiKey: string;
   private baseUrl: string;
@@ -907,6 +959,19 @@ Prioritize suggestions by impact and ease of implementation.`;
     } catch (error) {
       throw new Error('Failed to parse performance analysis response');
     }
+  }
+
+  getFormTemplate(templateId: string): GeneratedForm | null {
+    const template = FORM_TEMPLATES[templateId as keyof typeof FORM_TEMPLATES];
+    if (!template) return null;
+
+    return {
+      ...template,
+      questions: template.questions.map(q => ({
+        ...q,
+        id: `question_${Date.now()}_${Math.random()}`
+      }))
+    };
   }
 }
 

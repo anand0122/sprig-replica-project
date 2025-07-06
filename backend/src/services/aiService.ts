@@ -747,6 +747,17 @@ Return JSON format:
       throw new Error('Failed to retrieve usage statistics');
     }
   }
+
+  async generateBloomsQuiz(options: { prompt: string; taxonomyLevel: string; difficulty: string; questionCount: number; userId: string }) {
+    // For now, delegate to generateFormFromPrompt with formType 'quiz'
+    return this.generateFormFromPrompt({
+      prompt: options.prompt,
+      formType: 'quiz',
+      language: 'en',
+      style: options.difficulty,
+      userId: options.userId
+    });
+  }
 }
 
 export const aiService = new AIService(); 

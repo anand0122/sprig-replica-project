@@ -3,7 +3,9 @@ import { useSearchParams, useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { aiService, FormQuestion, GeneratedForm } from "@/services/aiService";
+import * as aiBackend from "@/services/aiBackend";
 import { QuestionBuilder } from "@/components/QuestionBuilder";
+import { FORM_TEMPLATES } from "@/data/formTemplates";
 import { 
   ArrowLeft, 
   Upload, 
@@ -61,12 +63,13 @@ const FormBuilder = () => {
     return typeMap[oldType] || 'short-answer';
   };
 
-  // Load existing form if editing
+  // Update the useEffect to handle template initialization
   useEffect(() => {
+    const isTemplate = searchParams.get('template') === 'true';
+    
     if (isEditing && id) {
       loadExistingForm(id);
     } else if (method === 'blank') {
-      // Initialize blank form - start at step 1 for proper flow
       setGeneratedForm({
         title: 'New Form',
         description: 'Custom form created from scratch',
@@ -77,12 +80,26 @@ const FormBuilder = () => {
           thankYouMessage: 'Thank you for your submission!'
         }
       });
-      setCurrentStep(1); // Start at step 1 for blank forms
+      setCurrentStep(1);
+    } else if (method && isTemplate && FORM_TEMPLATES[method as keyof typeof FORM_TEMPLATES]) {
+      const template = FORM_TEMPLATES[method as keyof typeof FORM_TEMPLATES];
+      setGeneratedForm({
+        ...template,
+        questions: template.questions.map(q => ({
+          ...q,
+          id: `question_${Date.now()}_${Math.random()}`
+        }))
+      });
+      setFormData({
+        ...formData,
+        title: template.title,
+        description: template.description
+      });
+      setCurrentStep(1);
     } else if (!method && !isEditing) {
-      // If no method is provided and not editing, redirect to create form page
       navigate('/create');
     }
-  }, [isEditing, id, method, navigate]);
+  }, [isEditing, id, method, navigate, searchParams]);
 
   const loadExistingForm = (formId: string) => {
     try {
@@ -138,6 +155,24 @@ const FormBuilder = () => {
     } catch (error) {
       console.error('Error loading form:', error);
       navigate('/forms');
+    }
+  };
+
+  const initializeTemplateForm = (templateId: string) => {
+    if (FORM_TEMPLATES[templateId as keyof typeof FORM_TEMPLATES]) {
+      const template = FORM_TEMPLATES[templateId as keyof typeof FORM_TEMPLATES];
+      setGeneratedForm({
+        ...template,
+        questions: template.questions.map(q => ({
+          ...q,
+          id: `question_${Date.now()}_${Math.random()}`
+        }))
+      });
+      setFormData({
+        ...formData,
+        title: template.title,
+        description: template.description
+      });
     }
   };
 
@@ -225,6 +260,122 @@ const FormBuilder = () => {
       icon: <FileText className="w-6 h-6" />,
       steps: ['Form Information', 'Edit Questions', 'Settings', 'Save Changes'],
       inputType: 'edit'
+    },
+    // Form Templates - Teachers & Schools
+    'student-registration': {
+      title: "Student Registration Form",
+      description: "Collect student information for enrollment and class assignments",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'parent-teacher-conference': {
+      title: "Parent-Teacher Conference Form",
+      description: "Schedule meetings and collect parent feedback and concerns",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'field-trip-permission': {
+      title: "Field Trip Permission Form",
+      description: "Get parental consent and collect necessary information for school trips",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'course-evaluation': {
+      title: "Course Evaluation Form",
+      description: "Gather student feedback on courses, teaching methods, and curriculum",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    // Form Templates - HR Teams
+    'job-application': {
+      title: "Job Application Form",
+      description: "Streamline hiring process with comprehensive application forms",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'employee-onboarding': {
+      title: "Employee Onboarding Form",
+      description: "Collect new hire information and documentation efficiently",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'performance-review': {
+      title: "Performance Review Form",
+      description: "Conduct comprehensive employee performance evaluations",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'employee-satisfaction': {
+      title: "Employee Satisfaction Form",
+      description: "Measure workplace satisfaction and gather improvement suggestions",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    // Form Templates - Publishers
+    'manuscript-submission': {
+      title: "Manuscript Submission Form",
+      description: "Accept and organize manuscript submissions from authors",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'reader-feedback': {
+      title: "Reader Feedback Form",
+      description: "Collect reader reviews and feedback on published content",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'author-royalty': {
+      title: "Author Royalty Form",
+      description: "Manage author payments and royalty information",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'book-marketing': {
+      title: "Book Marketing Survey",
+      description: "Gather market research data for book promotion strategies",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    // Form Templates - EdTech Companies
+    'user-onboarding': {
+      title: "User Onboarding Form",
+      description: "Welcome new users and customize their learning experience",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'course-feedback': {
+      title: "Course Feedback Form",
+      description: "Collect student feedback on online courses and content quality",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'beta-testing': {
+      title: "Beta Testing Form",
+      description: "Gather feedback from beta testers for new features and products",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
+    },
+    'partnership-inquiry': {
+      title: "Partnership Inquiry Form",
+      description: "Connect with potential educational partners and institutions",
+      icon: <FileText className="w-6 h-6" />,
+      steps: ['Form Setup', 'Add Questions', 'Design & Layout', 'Review & Publish'],
+      inputType: 'template'
     }
   };
 
@@ -256,22 +407,21 @@ const FormBuilder = () => {
     
     setIsGenerating(true);
     try {
-      let result: GeneratedForm | FormQuestion[];
+      let result: GeneratedForm | null = null;
       
       switch (method) {
         case 'blooms-quiz':
-          const result = await aiService.generateBloomsQuiz(formData.content, {
-            taxonomyLevel: formData.taxonomyLevel,
-            difficulty: formData.difficulty,
-            questionCount: formData.questionCount
-          });
-          setGeneratedForm(result);
+          result = await aiBackend.generateBloomsQuiz(
+            formData.content,
+            formData.taxonomyLevel,
+            formData.difficulty,
+            formData.questionCount
+          );
           break;
           
         case 'image-to-quiz':
           if (formData.file) {
-            const imageResult = await aiService.generateQuestionsFromImage(formData.file.toString());
-            setGeneratedForm(imageResult);
+            result = await aiBackend.generateQuestionsFromImage(formData.file.toString());
           } else {
             throw new Error('Please upload an image file');
           }
@@ -280,53 +430,282 @@ const FormBuilder = () => {
         case 'learn-from-url':
         case 'news-to-quiz':
           if (formData.url) {
-            const extractedContent = await aiService.extractContentFromUrl(formData.url);
-            const urlResult = await aiService.generateFormFromText(extractedContent, {
-              formType: method,
-              questionCount: formData.questionCount,
-              difficulty: formData.difficulty
-            });
-            setGeneratedForm(urlResult);
+            result = await aiBackend.generateFormFromUrl(formData.url, method);
           } else {
             throw new Error('Please provide a valid URL');
           }
           break;
           
         case 'similar-quiz':
-          const similarResult = await aiService.generateSimilarQuiz(formData.content);
-          setGeneratedForm(similarResult);
+          result = await aiBackend.generateSimilarQuiz(formData.content);
           break;
           
         case 'blank':
+          if (formData.content && formData.content.trim().length > 0) {
+            result = await aiBackend.generateForm(formData.content);
+          } else {
+            // No prompt — fall back to minimal starter template
+            setGeneratedForm({
+              title: formData.title || 'New Form',
+              description: formData.description || 'Custom form created from scratch',
+              questions: [
+                {
+                  id: 'question_1',
+                  type: 'short-answer',
+                  question: 'What is your name?',
+                  required: true,
+                  placeholder: 'Enter your full name',
+                },
+              ],
+              settings: {
+                theme: 'modern',
+                submitButtonText: 'Submit',
+                thankYouMessage: 'Thank you for your submission!',
+              },
+            });
+          }
+          break;
+
+        // Template Forms
+        case 'student-registration':
           setGeneratedForm({
-            title: formData.title || "New Form",
-            description: formData.description || "Custom form created from scratch",
+            title: 'Student Registration Form',
+            description: 'Comprehensive student enrollment and information collection',
             questions: [
               {
-                id: 'question_1',
+                id: crypto.randomUUID(),
                 type: 'short-answer',
-                question: 'What is your name?',
+                question: 'Student Full Name',
                 required: true,
-                placeholder: 'Enter your full name'
+                placeholder: 'Enter student\'s full name'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'email',
+                question: 'Student Email Address',
+                required: true,
+                placeholder: 'student@school.edu'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'date',
+                question: 'Date of Birth',
+                required: true
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'dropdown',
+                question: 'Grade Level',
+                required: true,
+                options: ['9th Grade', '10th Grade', '11th Grade', '12th Grade']
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'long-answer',
+                question: 'Parent/Guardian Contact Information',
+                required: true,
+                placeholder: 'Include name, phone, and email'
               }
             ],
             settings: {
               theme: 'modern',
-              submitButtonText: 'Submit',
-              thankYouMessage: 'Thank you for your submission!'
+              submitButtonText: 'Submit Registration',
+              thankYouMessage: 'Thank you for your registration!'
+            }
+          });
+          break;
+
+        case 'job-application':
+          setGeneratedForm({
+            title: 'Job Application Form',
+            description: 'Comprehensive job application with resume upload and screening questions',
+            questions: [
+              {
+                id: crypto.randomUUID(),
+                type: 'short-answer',
+                question: 'Full Name',
+                required: true,
+                placeholder: 'Enter your full name'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'email',
+                question: 'Email Address',
+                required: true,
+                placeholder: 'your.email@example.com'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'phone',
+                question: 'Phone Number',
+                required: true,
+                placeholder: '(555) 123-4567'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'file-upload',
+                question: 'Resume Upload',
+                required: true,
+                description: 'Please upload your resume in PDF format'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'long-answer',
+                question: 'Why are you interested in this position?',
+                required: true,
+                placeholder: 'Describe your interest and qualifications...'
+              }
+            ],
+            settings: {
+              theme: 'professional',
+              submitButtonText: 'Submit Application',
+              thankYouMessage: 'Thank you for your application! We will review it and get back to you soon.'
+            }
+          });
+          break;
+
+        case 'parent-teacher-conference':
+          setGeneratedForm({
+            title: 'Parent-Teacher Conference Scheduling',
+            description: 'Schedule meetings and collect parent feedback and concerns',
+            questions: [
+              {
+                id: crypto.randomUUID(),
+                type: 'short-answer',
+                question: 'Parent/Guardian Name',
+                required: true,
+                placeholder: 'Enter your full name'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'short-answer',
+                question: 'Student Name',
+                required: true,
+                placeholder: 'Enter student\'s full name'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'dropdown',
+                question: 'Preferred Meeting Time',
+                required: true,
+                options: ['Morning (8:00-11:00 AM)', 'Afternoon (12:00-3:00 PM)', 'Evening (4:00-6:00 PM)']
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'long-answer',
+                question: 'Topics you\'d like to discuss',
+                required: false,
+                placeholder: 'Any specific concerns or questions about your child\'s progress...'
+              }
+            ],
+            settings: {
+              theme: 'educational',
+              submitButtonText: 'Schedule Conference',
+              thankYouMessage: 'Thank you! We will confirm your conference time soon.'
+            }
+          });
+          break;
+
+        case 'employee-satisfaction':
+          setGeneratedForm({
+            title: 'Employee Satisfaction Survey',
+            description: 'Help us improve your workplace experience',
+            questions: [
+              {
+                id: crypto.randomUUID(),
+                type: 'dropdown',
+                question: 'Department',
+                required: true,
+                options: ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Other']
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'linear-scale',
+                question: 'How satisfied are you with your current role?',
+                required: true,
+                scaleMin: 1,
+                scaleMax: 5,
+                scaleMinLabel: 'Very Dissatisfied',
+                scaleMaxLabel: 'Very Satisfied'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'linear-scale',
+                question: 'How would you rate work-life balance?',
+                required: true,
+                scaleMin: 1,
+                scaleMax: 5,
+                scaleMinLabel: 'Poor',
+                scaleMaxLabel: 'Excellent'
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'long-answer',
+                question: 'What improvements would you suggest?',
+                required: false,
+                placeholder: 'Share your suggestions for improving the workplace...'
+              }
+            ],
+            settings: {
+              theme: 'professional',
+              submitButtonText: 'Submit Feedback',
+              thankYouMessage: 'Thank you for your valuable feedback!'
             }
           });
           break;
           
         default:
-          const defaultResult = await aiService.generateFormFromText(formData.content, {
-            formType: method || 'default',
-            questionCount: formData.questionCount,
-            difficulty: formData.difficulty
-          });
-          setGeneratedForm(defaultResult);
+          // For any other template methods, generate a basic form
+          if (currentConfig.inputType === 'template') {
+            setGeneratedForm({
+              title: currentConfig.title,
+              description: currentConfig.description,
+              questions: [
+                {
+                  id: crypto.randomUUID(),
+                  type: 'short-answer',
+                  question: 'Name',
+                  required: true,
+                  placeholder: 'Enter your name'
+                },
+                {
+                  id: crypto.randomUUID(),
+                  type: 'email',
+                  question: 'Email Address',
+                  required: true,
+                  placeholder: 'your.email@example.com'
+                },
+                {
+                  id: crypto.randomUUID(),
+                  type: 'long-answer',
+                  question: 'Additional Information',
+                  required: false,
+                  placeholder: 'Please provide any additional details...'
+                }
+              ],
+              settings: {
+                theme: 'modern',
+                submitButtonText: 'Submit',
+                thankYouMessage: 'Thank you for your submission!'
+              }
+            });
+          } else {
+            result = await aiBackend.generateForm(formData.content);
+          }
       }
       
+      // If we received an AI-generated form, trim to desired question count (if set)
+      if (result) {
+        const desiredCount = formData.questionCount || 5;
+        if (Array.isArray(result.questions) && result.questions.length > desiredCount) {
+          result = {
+            ...result,
+            questions: result.questions.slice(0, desiredCount),
+          };
+        }
+        setGeneratedForm(result);
+      }
+
       handleNext();
     } catch (error) {
       console.error('Generation error:', error);
@@ -359,7 +738,7 @@ const FormBuilder = () => {
           ...generatedForm,
           createdAt: new Date().toISOString(),
           method: method || 'blank',
-          status: 'draft',
+          status: 'active',
           responses: 0
         };
         savedForms.push(newForm);
@@ -731,10 +1110,126 @@ const FormBuilder = () => {
         );
 
       case 2:
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {currentConfig.steps[1]}
+              </h2>
+              <p className="text-gray-600">
+                Configure settings for AI generation
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Prompt
+              </label>
+              <textarea
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe the questions you want to generate..."
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              />
+
+              <Button 
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating with AI...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Questions with AI
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-900">Generation Settings</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Number of Questions
+                  </label>
+                  <select 
+                    value={formData.questionCount}
+                    onChange={(e) => setFormData({ ...formData, questionCount: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value={3}>3 questions</option>
+                    <option value={5}>5 questions</option>
+                    <option value={10}>10 questions</option>
+                    <option value={15}>15 questions</option>
+                    <option value={20}>20 questions</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Difficulty Level
+                  </label>
+                  <select 
+                    value={formData.difficulty}
+                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="mixed">Mixed</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3:
         // For editing mode, show question editing
         if (isEditing) {
           return (
             <div className="space-y-6">
+              <div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Prompt
+                </label>
+                <textarea
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Describe the questions you want to generate..."
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                />
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Generate Questions
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -792,237 +1287,6 @@ const FormBuilder = () => {
                   )}
                 </div>
               )}
-            </div>
-          );
-        }
-
-        // Skip settings step for blank forms
-        if (method === 'blank') {
-          return (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  Add Questions
-                </h2>
-                <p className="text-gray-600">
-                  Start building your form by adding questions
-                </p>
-              </div>
-
-              {generatedForm && (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <input
-                      type="text"
-                      value={generatedForm.title}
-                      onChange={(e) => setGeneratedForm({ ...generatedForm, title: e.target.value })}
-                      className="text-lg font-semibold bg-transparent border-none outline-none w-full"
-                      placeholder="Form Title"
-                    />
-                    <textarea
-                      value={generatedForm.description}
-                      onChange={(e) => setGeneratedForm({ ...generatedForm, description: e.target.value })}
-                      className="text-gray-600 bg-transparent border-none outline-none w-full mt-1 resize-none"
-                      placeholder="Form Description"
-                      rows={2}
-                    />
-                  </div>
-                  
-                  {generatedForm.questions.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No questions yet</h3>
-                      <p className="text-gray-600 mb-4">Add your first question to get started</p>
-                      <Button onClick={addNewQuestion} className="bg-blue-600 hover:bg-blue-700">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add First Question
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      {generatedForm.questions.map((question, index) => (
-                        <QuestionBuilder
-                          key={question.id}
-                          question={question}
-                          onUpdate={(updatedQuestion) => updateQuestion(index, updatedQuestion)}
-                          onDelete={() => deleteQuestion(index)}
-                          onDuplicate={() => duplicateQuestion(index)}
-                        />
-                      ))}
-                      
-                      <div className="text-center">
-                        <Button 
-                          onClick={addNewQuestion}
-                          variant="outline"
-                          className="border-dashed border-2"
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Another Question
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        }
-        
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {currentConfig.steps[1]}
-              </h2>
-              <p className="text-gray-600">
-                Configure settings for AI generation
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="font-medium text-gray-900">Generation Settings</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number of Questions
-                  </label>
-                  <select 
-                    value={formData.questionCount}
-                    onChange={(e) => setFormData({ ...formData, questionCount: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  >
-                    <option value={3}>3 questions</option>
-                    <option value={5}>5 questions</option>
-                    <option value={10}>10 questions</option>
-                    <option value={15}>15 questions</option>
-                    <option value={20}>20 questions</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Difficulty Level
-                  </label>
-                  <select 
-                    value={formData.difficulty}
-                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                    <option value="mixed">Mixed</option>
-                  </select>
-                </div>
-              </div>
-
-              {method === 'blooms-quiz' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Bloom's Taxonomy Level
-                  </label>
-                  <select 
-                    value={formData.taxonomyLevel}
-                    onChange={(e) => setFormData({ ...formData, taxonomyLevel: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="remember">Remember - Recall facts and basic concepts</option>
-                    <option value="understand">Understand - Explain ideas or concepts</option>
-                    <option value="apply">Apply - Use information in new situations</option>
-                    <option value="analyze">Analyze - Draw connections among ideas</option>
-                    <option value="evaluate">Evaluate - Justify a stand or decision</option>
-                    <option value="create">Create - Produce new or original work</option>
-                  </select>
-                </div>
-              )}
-
-              <Button 
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating with AI...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Generate Questions with AI
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        );
-
-      case 3:
-        // For editing mode, show form settings
-        if (isEditing) {
-          return (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  Form Settings
-                </h2>
-                <p className="text-gray-600">
-                  Configure your form's appearance and behavior
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Submit Button Text
-                    </label>
-                    <input
-                      type="text"
-                      value={generatedForm?.settings?.submitButtonText || 'Submit'}
-                      onChange={(e) => generatedForm && setGeneratedForm({
-                        ...generatedForm,
-                        settings: { ...generatedForm.settings, submitButtonText: e.target.value }
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Theme
-                    </label>
-                    <select
-                      value={generatedForm?.settings?.theme || 'modern'}
-                      onChange={(e) => generatedForm && setGeneratedForm({
-                        ...generatedForm,
-                        settings: { ...generatedForm.settings, theme: e.target.value }
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="modern">Modern</option>
-                      <option value="educational">Educational</option>
-                      <option value="professional">Professional</option>
-                      <option value="friendly">Friendly</option>
-                      <option value="visual">Visual</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Thank You Message
-                  </label>
-                  <textarea
-                    value={generatedForm?.settings?.thankYouMessage || 'Thank you for your submission!'}
-                    onChange={(e) => generatedForm && setGeneratedForm({
-                      ...generatedForm,
-                      settings: { ...generatedForm.settings, thankYouMessage: e.target.value }
-                    })}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
             </div>
           );
         }

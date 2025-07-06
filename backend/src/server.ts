@@ -7,14 +7,14 @@ import { PrismaClient } from '@prisma/client';
 
 // Import routes
 import authRoutes from './routes/auth.js';
-import userRoutes from './routes/users.js';
-import formRoutes from './routes/forms.js';
-import responseRoutes from './routes/responses.js';
-import analyticsRoutes from './routes/analytics.js';
-import aiRoutes from './routes/ai.js';
-import integrationRoutes from './routes/integrations.js';
-import webhookRoutes from './routes/webhooks.js';
-import subscriptionRoutes from './routes/subscriptions.js';
+import userRoutes from './routes/users.ts';
+import formRoutes from './routes/forms.ts';
+import responseRoutes from './routes/responses.ts';
+import analyticsRoutes from './routes/analytics.ts';
+import aiRoutes from './routes/ai.ts';
+import integrationRoutes from './routes/integrations.ts';
+import webhookRoutes from './routes/webhooks.ts';
+import subscriptionRoutes from './routes/subscriptions.ts';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -49,7 +49,7 @@ app.use(helmet({
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://formpulse.com', 'https://www.formpulse.com']
-    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8090'],
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8080', 'http://localhost:8090'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -106,7 +106,7 @@ app.use('/api/forms', authenticateToken, formRoutes);
 app.use('/api/responses', responseRoutes); // Some endpoints are public
 app.use('/api/analytics', authenticateToken, analyticsRoutes);
 app.use('/api/ai', authenticateToken, aiRoutes);
-app.use('/api/integrations', authenticateToken, integrationRoutes);
+app.use('/api/integrations', integrationRoutes);
 app.use('/api/webhooks', webhookRoutes); // Webhooks are public but verified
 app.use('/api/subscriptions', authenticateToken, subscriptionRoutes);
 

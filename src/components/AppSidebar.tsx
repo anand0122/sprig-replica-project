@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { 
+import {
   Home, 
   FileText, 
   BarChart3, 
@@ -65,9 +65,9 @@ export function AppSidebar() {
               isActive(item.path)
                 ? "bg-blue-50 text-blue-700 border border-blue-200"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }`}
-          >
-            <item.icon className="w-5 h-5" />
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
             {item.label}
           </button>
         ))}

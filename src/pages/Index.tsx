@@ -295,7 +295,7 @@ const Index = () => {
                     <div className="space-y-6">
                       <div className="flex items-center gap-3">
                         <Brain className="w-8 h-8 text-blue-600" />
-                        <div>
+              <div>
                           <h3 className="font-semibold text-gray-900">AI Form Builder</h3>
                           <p className="text-sm text-gray-600">Generate forms from any content</p>
                         </div>
@@ -387,7 +387,7 @@ const Index = () => {
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Powerful features that help you collect better data and make smarter decisions
               </p>
-            </div>
+              </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {useCases.map((useCase, index) => (
@@ -402,7 +402,7 @@ const Index = () => {
                 </Card>
               ))}
             </div>
-          </div>
+              </div>
         </section>
 
         {/* Teams Section */}
@@ -465,8 +465,8 @@ const Index = () => {
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          </div>
+        </div>
+      </div>
         </section>
 
         {/* Integrations */}
@@ -480,7 +480,7 @@ const Index = () => {
                 Connect FormPulse with the tools you already use
               </p>
             </div>
-
+            
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
               {integrations.map((integration, index) => (
                 <div key={index} className="bg-white rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-shadow">
